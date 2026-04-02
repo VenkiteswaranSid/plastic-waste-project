@@ -4,23 +4,12 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Plastic Pollution
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+The plastic pollution data set contains information from the organization, Break Free From Plastic, and their audits on plastic pollution and the efforts to clean it up within different countries. It contains data from audits in 2019 and 2020, in addition to the parent company from where the pollution originated from. The plastic is specifically classified by recycling codes.
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Looking at the cleaning that has been done to the data so far, it is clear that from the cleaning script, the columns have been set to have values of either values of characters or doubles. This applies for both 2019 and 2020. Furthermore, for 2019, there has been an str_replace operation conducted to better set the names from the file which it was collected from. Additionally, there has been a mutate operation conducted to create new variables of pp and ps, with if else statements to handle NA values within the variable pp_2.
 
 ```{r}
-1 + 1
+plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
