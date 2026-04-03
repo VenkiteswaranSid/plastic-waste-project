@@ -2,6 +2,7 @@
 title: "Project 1 Draft Report"
 format: html
 editor: visual
+author: "Siddharth Venkiteswaran"
 ---
 
 ## Plastic Pollution
