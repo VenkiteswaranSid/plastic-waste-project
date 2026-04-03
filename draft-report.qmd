@@ -23,3 +23,7 @@ Looking at the cleaning that has been done to the data so far, it is clear that 
 ```{r}
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
+
+### Visualization Sketches
+
+<https://excalidraw.com/#json=buS3O8kzDji6O6ABK-REi,E2ouf_AO14QoCr69V5YTWw>
