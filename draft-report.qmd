@@ -32,6 +32,7 @@ plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 ### Summary Functions
 
 ```{r}
+## Uses iteration and a custom function
 total_plastics <- function(input_country){
   
   grand_total_plastics <- plastics |>
@@ -46,5 +47,27 @@ plastics |>
   distinct(country) |>
   mutate(
     plastic_total = map_int(country, total_plastics)
-    ) 
+    ) |>
+  slice_max(plastic_total, n = 10)
+```
+
+```{r}
+cleanup_totals <- function(input_country) {
+  plastics |>
+    filter(country == input_country) |>
+    distinct(num_events, volunteers) |>
+    mutate(total_vol = sum(volunteers, na.rm = T),
+         total_events = sum(num_events, na.rm = T)) |>
+    distinct(total_vol, total_events) |>
+    mutate(vol_per_event = total_vol / total_events) |>
+    pull(vol_per_event)
+}
+
+plastics |>
+  distinct(country) |>
+  mutate(
+    avg_participation = map_dbl(country, cleanup_totals),
+    rounded_participation = round(avg_participation)
+  ) |>
+  slice_max(avg_participation, n = 20)
 ```
