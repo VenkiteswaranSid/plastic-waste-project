@@ -28,3 +28,23 @@ plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 ### Visualization Sketches
 
 <https://excalidraw.com/#json=buS3O8kzDji6O6ABK-REi,E2ouf_AO14QoCr69V5YTWw>
+
+### Summary Functions
+
+```{r}
+total_plastics <- function(input_country){
+  
+  grand_total_plastics <- plastics |>
+    filter(country == input_country) |>
+    distinct(year, grand_total) |>
+    pull(grand_total)
+  
+  sum(grand_total_plastics, na.rm = TRUE)
+}
+
+plastics |>
+  distinct(country) |>
+  mutate(
+    plastic_total = map_int(country, total_plastics)
+    ) 
+```
