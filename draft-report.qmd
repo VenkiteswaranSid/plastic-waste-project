@@ -11,7 +11,7 @@ The plastic pollution data set contains information from the organization, Break
 
 Looking at the cleaning that has been done to the data so far, it is clear that from the cleaning script, the columns have been set to have values of either values of characters or doubles. This applies for both 2019 and 2020. Furthermore, for 2019, there has been an str_replace operation conducted to better set the names from the file which it was collected from. Additionally, there has been a mutate operation conducted to create new variables of pp and ps, with if else statements to handle NA values within the variable pp_2.
 
-### Research Questions
+### Initial Research Questions
 
 1.  Which companies had the highest grand total number of plastics thrown out in 2019 and 2020?
 
@@ -30,9 +30,40 @@ plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 
 <https://excalidraw.com/#json=buS3O8kzDji6O6ABK-REi,E2ouf_AO14QoCr69V5YTWw>
 
-### Summary Functions
+## Data Summaries Using Existing Columns
 
-1.  Which companies had the highest grand total number of plastics thrown out in 2019 and 2020?
+### Data Summary 1
+
+**Question**: Which parent companies contribute the most total plastic waste across all countries, and what share of the total recorded waste does each company account for?
+
+```{r}
+overall_total <- sum(plastics$grand_total, na.rm = TRUE)
+
+company_share <- function(x, overall_total) {
+  sum(x, na.rm = TRUE) / overall_total
+}
+
+company_summary <- plastics |>
+  filter(!is.na(parent_company),
+         parent_company != "Grand Total",
+         parent_company != "null",
+         parent_company != "NULL",
+         parent_company != "Unbranded") |>
+  group_by(parent_company) |>
+  summarize(
+    total_plastic_waste = sum(grand_total, na.rm = TRUE),
+    share_of_total = company_share(grand_total, overall_total),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_plastic_waste)) |>
+  slice_head(n = 10)
+
+company_summary
+```
+
+### Data Summary 2
+
+**Question**: Which countries had clean up efforts that found the largest grand total of plastics in 2019 and 2020?
 
 ```{r}
 ## Uses iteration and a custom function
@@ -54,7 +85,37 @@ plastics |>
   slice_max(plastic_total, n = 10)
 ```
 
-2.  Which nations had the highest average participation for cleanup events in 2019 and 2020?
+## Data Summaries That Modify Columns
+
+### Data Summary 3
+
+**Question**: Which countries have the highest average amount of plastic collected per cleanup event?
+
+```{r}
+plastic_per_event <- function(input_country) {
+  plastics |>
+    filter(country == input_country) |>
+    distinct(year, grand_total, num_events) |>
+    summarise(
+      total_plastic = sum(grand_total, na.rm = TRUE),
+      total_events = sum(num_events, na.rm = TRUE)
+    ) |>
+    mutate(plastic_per_event = total_plastic / total_events) |>
+    pull(plastic_per_event)
+}
+
+plastic_event_summary <- plastics |>
+  distinct(country) |>
+  mutate(plastic_per_event = map_dbl(country, plastic_per_event)) |>
+  slice_max(plastic_per_event, n = 10)
+
+plastic_event_summary
+
+```
+
+### Data Summary 4
+
+**Question**: Which nations had the highest average participation for cleanup events in 2019 and 2020?
 
 ```{r}
 cleanup_totals <- function(input_country) {
