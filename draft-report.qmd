@@ -22,6 +22,7 @@ Looking at the cleaning that has been done to the data so far, it is clear that 
 4.  Do countries with a higher GDP tend to contribute to rising levels of plastic waste?
 
 ```{r}
+library(tidyverse)
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
 
@@ -30,6 +31,8 @@ plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 <https://excalidraw.com/#json=buS3O8kzDji6O6ABK-REi,E2ouf_AO14QoCr69V5YTWw>
 
 ### Summary Functions
+
+1.  Which companies had the highest grand total number of plastics thrown out in 2019 and 2020?
 
 ```{r}
 ## Uses iteration and a custom function
@@ -50,6 +53,8 @@ plastics |>
     ) |>
   slice_max(plastic_total, n = 10)
 ```
+
+2.  Which nations had the highest average participation for cleanup events in 2019 and 2020?
 
 ```{r}
 cleanup_totals <- function(input_country) {
