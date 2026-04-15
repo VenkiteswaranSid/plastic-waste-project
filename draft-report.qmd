@@ -79,6 +79,7 @@ total_plastics <- function(input_country){
 
 plastics |>
   distinct(country) |>
+  filter(country != "EMPTY") |>
   mutate(
     plastic_total = map_int(country, total_plastics)
     ) |>
@@ -136,4 +137,26 @@ plastics |>
     rounded_participation = round(avg_participation)
   ) |>
   slice_max(avg_participation, n = 20)
+```
+
+```{r}
+## Renaming the countries with top 10 plastic totals
+plastics |>
+  distinct(country) |>
+  filter(country != "EMPTY") |>
+  mutate(
+    plastic_total = map_int(country, total_plastics)
+    ) |>
+  slice_max(plastic_total, n = 10) |>
+  select(country) |>
+  mutate(country = recode(country, 
+                          `Taiwan_ Republic of China (ROC)` = "Taiwan",
+                          NIGERIA = "Nigeria", 
+                          ECUADOR = "Ecuador",
+                          `United States of America` = "USA"))
+  
+```
+
+```{r}
+
 ```
