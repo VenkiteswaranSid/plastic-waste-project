@@ -147,13 +147,14 @@ plastics |>
   mutate(
     plastic_total = map_int(country, total_plastics)
     ) |>
-  slice_max(plastic_total, n = 10) |>
-  select(country) |>
+  filter(country != "Nigeria" & plastic_total != 61123) |>
+  slice_max(plastic_total, n = 10) |> 
   mutate(country = recode(country, 
                           `Taiwan_ Republic of China (ROC)` = "Taiwan",
                           NIGERIA = "Nigeria", 
                           ECUADOR = "Ecuador",
-                          `United States of America` = "USA"))
+                          `United States of America` = "USA",
+                          `Burkina Faso` = "BFA"))
   
 ```
 
@@ -179,6 +180,8 @@ get_gdp <- function(country, key = my_key)
     return(my_data$result |> filter(year %in% c(2019, 2020)))
   }
 }
+
+get_gdp("BFA")
 ```
 
 ```{r}
@@ -202,7 +205,24 @@ top_plastic_countries
 ```
 
 ```{r}
+#| eval: false
 ## Create a list of the countries with their GDP
 gdp_list <- top_plastic_countries |>
   map(get_gdp)
+
+## Double check for NAs
+gdp_list |>
+  is.na() |>
+  sum()
+```
+
+```{r}
+## Turn this into a tibble to join with our original data frame
+gdp_df <- gdp_list |>
+  keep(is.data.frame) |>
+  bind_rows()
+```
+
+```{r}
+
 ```
