@@ -263,6 +263,7 @@ head(plastics_top)
 ```{r}
 library(readr)
 co2_data <- read.csv("owid-co2-data.csv")
+## Data found from https://github.com/owid/co2-data/blob/master/README.md
 
 mod1_co2_data <- co2_data |>
   filter(year %in% c(2019, 2020),
