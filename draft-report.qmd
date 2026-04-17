@@ -257,6 +257,17 @@ plastics_top <- plastics |>
     )) |>
   left_join(gdp_df) 
 
-unique(plastics_top$country)
+head(plastics_top)
+```
 
+```{r}
+library(readr)
+co2_data <- read.csv("owid-co2-data.csv")
+
+mod1_co2_data <- co2_data |>
+  filter(year %in% c(2019, 2020),
+         iso_code %in% plastics_top$country_code)
+
+plastics_top <- plastics_top |>
+  left_join(mod1_co2_data)
 ```
