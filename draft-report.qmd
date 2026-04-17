@@ -181,28 +181,26 @@ get_gdp <- function(country, key = my_key)
   }
 }
 
-get_gdp("BFA")
 ```
 
 ```{r}
 ## Create a list of the top 10 countries with the highest total plastics
+library(countrycode)
+
 top_plastic_countries <- plastics |>
   distinct(country) |>
   filter(country != "EMPTY") |>
   mutate(
-    plastic_total = map_int(country, total_plastics)
-    ) |>
-  filter(country != "Nigeria" & plastic_total != 61123) |>
-  slice_max(plastic_total, n = 10) |> 
-  mutate(country = recode(country, 
-                          `Taiwan_ Republic of China (ROC)` = "Taiwan",
-                          NIGERIA = "Nigeria", 
-                          ECUADOR = "Ecuador",
-                          `United States of America` = "USA",
-                          `Burkina Faso` = "BFA")) |>
+    plastic_total = map_int(country, total_plastics),
+    country = countrycode(country, origin = "country.name", destination = "country.name",
+                          custom_match = c(`Taiwan_ Republic of China (ROC)` = "Taiwan"))
+  ) |>
+  filter(!is.na(country)) |> ## Dropping Nigeria's duplicate
+  filter(plastic_total != 61123) |> ## Added security for removing the specific duplicate
+  slice_max(plastic_total, n = 10) |>
   pull(country)
 
-top_plastic_countries
+unique(top_plastic_countries)
 ```
 
 ```{r}
@@ -229,35 +227,19 @@ gdp_df |>
 ```
 
 ```{r}
+#| warning: false
 plastics_top <- plastics |>
   filter(country != "Nigeria") |>
-  mutate(country = recode(country, 
-                          `Taiwan_ Republic of China (ROC)` = "Taiwan",
-                          NIGERIA = "Nigeria", 
-                          ECUADOR = "Ecuador",
-                          `United States of America` = "USA",
-                          `Burkina Faso` = "BFA")) |>
+  mutate(
+    country = countrycode(country, origin = "country.name", destination = "country.name",
+                          custom_match = c(`Taiwan_ Republic of China (ROC)` = "Taiwan")),
+    country_code = countrycode(country, origin = "country.name", destination = "iso3c")
+  ) |>
   filter(country %in% top_plastic_countries) |>
-  mutate(country_code = case_when( 
-    country == "Taiwan" ~ "TWN",
-    country == "Nigeria" ~ "NGA",
-    country == "Philippines" ~ "PHL",
-    country == "Switzerland" ~ "CHE",
-    country == "Indonesia" ~ "IDN",
-    country == "Vietnam" ~ "VNM",
-    country == "Kenya" ~ "KEN",
-    country == "Ecuador" ~ "ECU",
-    country == "USA" ~ "USA",
-    country == "BFA" ~ "BFA"
-    ),
-    country = recode(
-      country,
-      USA = "United States",
-      BFA = "Burkina Faso"
-    )) |>
-  left_join(gdp_df) 
+  left_join(gdp_df)
 
 head(plastics_top)
+
 ```
 
 ```{r}
