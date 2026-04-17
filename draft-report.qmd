@@ -159,12 +159,11 @@ plastics |>
 ```
 
 ```{r}
+#| eval: false
 library(glue)
 library(httr)
 library(tidyjson)
 library(jsonlite)
-
-my_key <- "WxsgXLzH1oxC5SMmHsESExV0lmNzTKnRsZAFYa1z"
 
 ## Create a function to pull the GDP of countries from the API
 get_gdp <- function(country, key = my_key)
@@ -180,7 +179,6 @@ get_gdp <- function(country, key = my_key)
     return(my_data$result |> filter(year %in% c(2019, 2020)))
   }
 }
-
 ```
 
 ```{r}
@@ -199,11 +197,10 @@ top_plastic_countries <- plastics |>
   filter(plastic_total != 61123) |> ## Added security for removing the specific duplicate
   slice_max(plastic_total, n = 10) |>
   pull(country)
-
-unique(top_plastic_countries)
 ```
 
 ```{r}
+#| eval: false
 Sys.sleep(20)
 ## Create a list of the countries with their GDP
 gdp_list <- top_plastic_countries |>
@@ -216,14 +213,23 @@ gdp_list |>
 ```
 
 ```{r}
+#| eval: false
 ## Turn this into a tibble to join with our original data frame
-gdp_df <- gdp_list |>
+gdp_data <- gdp_list |>
   keep(is.data.frame) |>
   bind_rows() |>
   rename(country_code = country)
 
-gdp_df |>
+gdp_data |>
   pull(country_code)
+
+## Saving the csv locally
+write.csv(gdp_data, "gdp.csv")
+```
+
+```{r}
+## Rereading in the data from the local file
+gdp_df <- read.csv("gdp.csv")
 ```
 
 ```{r}
