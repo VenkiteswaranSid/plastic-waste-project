@@ -159,17 +159,19 @@ plastics |>
 ```
 
 ```{r}
-#| eval: false
 library(glue)
 library(httr)
 library(tidyjson)
 library(jsonlite)
+library(readr)
+library(tidyverse)
+```
 
+```{r}
+#| eval: false
 ## Create a function to pull the GDP of countries from the API
-get_gdp <- function(country, key = my_key)
-  {
-  
-  url <- glue("https://api.api-ninjas.com/v1/gdp?country={country};X-Api-Key={key}")
+get_gdp <- function(country_code, key = my_key) {
+  url <- glue("https://api.api-ninjas.com/v1/gdp?country={country_code};X-Api-Key={key}")
   
   my_data <- safely(fromJSON)(url)
   
@@ -187,16 +189,16 @@ library(countrycode)
 
 top_plastic_countries <- plastics |>
   distinct(country) |>
-  filter(country != "EMPTY") |>
+  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)")) |>  ## Dropping Taiwan because of its contested status in the world (some supplemental data does not include Taiwan)
   mutate(
     plastic_total = map_int(country, total_plastics),
-    country = countrycode(country, origin = "country.name", destination = "country.name",
-                          custom_match = c(`Taiwan_ Republic of China (ROC)` = "Taiwan"))
+    country_code = countrycode(country, origin = "country.name", destination = "iso3c")
   ) |>
-  filter(!is.na(country)) |> ## Dropping Nigeria's duplicate
+  filter(!is.na(country_code)) |> ## Dropping Nigeria's duplicate
   filter(plastic_total != 61123) |> ## Added security for removing the specific duplicate
   slice_max(plastic_total, n = 10) |>
-  pull(country)
+  pull(country_code)
+
 ```
 
 ```{r}
@@ -224,7 +226,7 @@ gdp_data |>
   pull(country_code)
 
 ## Saving the csv locally
-write.csv(gdp_data, "gdp.csv")
+write.csv(gdp_data, "gdp.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -236,26 +238,25 @@ gdp_df <- read.csv("gdp.csv")
 #| warning: false
 plastics_top <- plastics |>
   filter(country != "Nigeria") |>
+  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)")) |>
   mutate(
-    country = countrycode(country, origin = "country.name", destination = "country.name",
-                          custom_match = c(`Taiwan_ Republic of China (ROC)` = "Taiwan")),
     country_code = countrycode(country, origin = "country.name", destination = "iso3c")
   ) |>
-  filter(country %in% top_plastic_countries) |>
+  filter(country_code %in% top_plastic_countries) |>
   left_join(gdp_df)
 
 head(plastics_top)
-
 ```
 
 ```{r}
-library(readr)
-co2_data <- read.csv("owid-co2-data.csv")
-## Data found from https://github.com/owid/co2-data/blob/master/README.md
+renewable_data <- read.csv("renewable-energy.csv")
+## Data found from https://github.com/datasets/world-development-indicators/tree/main/indicators/eg.fec.rnew.zs
 
 plastics_top <- plastics_top |>
-  left_join(co2_data |>
-              filter(year %in% c(2019, 2020),
-                     iso_code %in% plastics_top$country_code), 
-            join_by(country, year))
+  left_join(renewable_data |>
+              filter(Year %in% c(2019, 2020),
+                     Country.Code %in% plastics_top$country_code), 
+            by = c("country_code" = "Country.Code", 
+                   "year" = "Year")) |>
+  select(-Country.Name)
 ```
