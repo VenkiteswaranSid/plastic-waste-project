@@ -23,6 +23,9 @@ Looking at the cleaning that has been done to the data so far, it is clear that 
 
 ```{r}
 library(tidyverse)
+```
+
+```{r}
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
 
@@ -139,24 +142,7 @@ plastics |>
   slice_max(avg_participation, n = 20)
 ```
 
-```{r}
-## Renaming the countries with top 10 plastic totals
-plastics |>
-  distinct(country) |>
-  filter(country != "EMPTY") |>
-  mutate(
-    plastic_total = map_int(country, total_plastics)
-    ) |>
-  filter(country != "Nigeria" & plastic_total != 61123) |>
-  slice_max(plastic_total, n = 10) |> 
-  mutate(country = recode(country, 
-                          `Taiwan_ Republic of China (ROC)` = "Taiwan",
-                          NIGERIA = "Nigeria", 
-                          ECUADOR = "Ecuador",
-                          `United States of America` = "USA",
-                          `Burkina Faso` = "BFA"))
-  
-```
+## Project Checkpoint #3
 
 ```{r}
 library(glue)
@@ -165,11 +151,14 @@ library(tidyjson)
 library(jsonlite)
 library(readr)
 library(tidyverse)
+library(ggalluvial)
+library(ggrepel)
 ```
+
+**Create a function to pull data from the API**
 
 ```{r}
 #| eval: false
-## Create a function to pull the GDP of countries from the API
 get_gdp <- function(country_code, key = my_key) {
   url <- glue("https://api.api-ninjas.com/v1/gdp?country={country_code};X-Api-Key={key}")
   
@@ -182,6 +171,8 @@ get_gdp <- function(country_code, key = my_key) {
   }
 }
 ```
+
+**Obtain a list of the top 10 countries in plastic waste totals**
 
 ```{r}
 ## Create a list of the top 10 countries with the highest total plastics
@@ -201,6 +192,8 @@ top_plastic_countries <- plastics |>
 
 ```
 
+**Pull data from the API**
+
 ```{r}
 #| eval: false
 Sys.sleep(20)
@@ -213,6 +206,8 @@ gdp_list |>
   is.na() |>
   sum()
 ```
+
+**Turn the data into a CSV file**
 
 ```{r}
 #| eval: false
@@ -233,6 +228,8 @@ write.csv(gdp_data, "gdp.csv", row.names = FALSE)
 ## Rereading in the data from the local file
 gdp_df <- read.csv("gdp.csv")
 ```
+
+**Join the data sets together**
 
 ```{r}
 #| warning: false
@@ -259,4 +256,118 @@ plastics_top <- plastics_top |>
             by = c("country_code" = "Country.Code", 
                    "year" = "Year")) |>
   select(-Country.Name)
+```
+
+### New Data Descriptions
+
+**GDP Data Description**
+
+The GDP data set has been extracted from the API Ninjas “GDP” API. In this case, the data has been programatically obtained in R by making an API call for each country by its ISO3 country code. Annual Gross Domestic Product (GDP) in U.S. Dollars has been recorded in this data set.
+
+However, for this assignment, the years included have been limited to 2019 and 2020. Therefore, each country will appear twice in this data set corresponding to the two years. The data is in the form of a Tidy Data Frame, and it would later be merged with the plastic data set.
+
+Key variables include:
+
+-   country: ISO3 country code
+
+<!-- -->
+
+-   year: year of observation (2019 or 2020)
+
+-   value: GDP (nominal) in U.S. dollars
+
+**Renewable Energy Data Description**
+
+The renewable energy dataset was sourced from an open-source data set provided on GitHub and is based on World Development Indicators. The data set consists of country-specific information about renewable energy consumption over time.
+
+In this case, the renewable energy data set has been filtered to include only the years 2019 and 2020 as well as only those countries that appear in the plastic data set. This filtering was done using ISO3 codes.
+
+Key variables include:
+
+-   Country Code : ISO3 country code
+
+-   Year: year of observation
+
+-   renewable energy consumption, measured as the percentage of total final energy consumption from renewable sources
+
+This dataset was merged with the GDP and plastics datasets to support comparative analysis across countries.
+
+### Additional Data Summaries/Visualizations
+
+**RQ:** What is the relationship between total plastic was and percentage of renewable energy, for the top 10 countries in total plastic waste ?
+
+```{r}
+renewable_summary <- plastics_top |>
+  filter(country_code %in% top_plastic_countries) |>
+  distinct(country, 
+           country_code, 
+           year, 
+           grand_total, 
+           Value) |>
+  group_by(country, 
+           country_code) |>
+  summarize(
+    total_waste = sum(grand_total, na.rm = TRUE),
+    renewable_pct = mean(Value, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  filter(country != "Ecuador")
+
+renewable_summary
+```
+
+**New Plot:** Plastic Waste vs. Renewable Energy Percentage by Country
+
+```{r}
+ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
+  geom_point(size = 3, color = "black") +
+  geom_text_repel(
+    aes(label = country_code),
+    size = 4,
+    box.padding = 0.5,
+    point.padding = 0.5
+  ) +
+  labs(
+    title = "Plastic Waste vs Renewable Energy by Country",
+    subtitle = "Top 10 Countries by Total Plastic Waste",
+    x = "Total Plastic Waste",
+    y = "Renewable Energy (% of total energy consumption)"
+  ) +
+  theme_classic(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12),
+    plot.margin = margin(15, 15, 15, 15),
+    axis.title = element_text(size = 12)
+  )
+
+```
+
+**New Plot:** GDP vs. Total Plastic Waste by Country
+
+```{r}
+top10_codes <- plastics_top |>
+  distinct(country_code) |>
+  slice_head(n = 10) |>
+  pull(country_code)
+
+country_plot <- plastics_top |>
+  filter(country_code %in% top10_codes) |>
+  group_by(country, country_code) |>
+  summarize(
+    total_plastic = sum(grand_total, na.rm = TRUE),
+    gdp = mean(gdp_nominal, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(country_plot, aes(x = gdp, y = total_plastic)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_text(aes(label = country_code), vjust = -0.5, size = 3) +
+  labs(
+    title = "Relationship Between GDP and Total Plastics (Top 10 Countries)",
+    x = "GDP (billions USD)",
+    y = "Total Plastics"
+  ) +
+  theme_minimal()
 ```
