@@ -4,6 +4,7 @@ format: html
 editor: visual
 author: "Siddharth Venkiteswaran"
 embed-resources: true
+warnings: false
 ---
 
 ## Plastic Pollution
@@ -188,7 +189,7 @@ top_plastic_countries <- plastics |>
   ) |>
   filter(!is.na(country_code)) |> ## Dropping Nigeria's duplicate
   filter(plastic_total != 61123) |> ## Added security for removing the specific duplicate
-  slice_max(plastic_total, n = 10) |>
+  slice_max(plastic_total, n = 50) |>
   pull(country_code)
 
 ```
@@ -235,8 +236,10 @@ gdp_df <- read.csv("gdp.csv")
 ```{r}
 #| warning: false
 plastics_top <- plastics |>
-  filter(country != "Nigeria") |>
-  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)")) |>
+  filter(!country %in% c("EMPTY", 
+                         "Nigeria", 
+                         "Taiwan_ Republic of China (ROC)", 
+                         "United Kingdom")) |>
   mutate(
     country_code = countrycode(country, origin = "country.name", destination = "iso3c")
   ) |>
@@ -312,9 +315,10 @@ renewable_summary <- plastics_top |>
     renewable_pct = mean(Value, na.rm = TRUE),
     .groups = "drop"
   ) |>
-  filter(country != "Ecuador")
+  filter(country != "Ecuador") |>
+  arrange(desc(total_waste))
 
-renewable_summary
+unique(renewable_summary$country)
 ```
 
 **New Plot:** Plastic Waste vs. Renewable Energy Percentage by Country
@@ -347,9 +351,13 @@ ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
 **New Plot:** GDP vs. Total Plastic Waste by Country
 
 ```{r}
-top10_codes <- plastics_top |>
+library(ggalluvial)
+```
+
+```{r}
+top50_codes <- plastics_top |>
   distinct(country_code) |>
-  slice_head(n = 10) |>
+  slice_head(n = 50) |>
   pull(country_code)
 
 country_plot <- plastics_top |>
@@ -371,4 +379,48 @@ ggplot(country_plot, aes(x = gdp, y = total_plastic)) +
     y = "Total Plastics"
   ) +
   theme_minimal()
+
+```
+
+```{r}
+top10_companies <- unique(company_summary$parent_company)
+top10_codes <- top_plastic_countries[1:5]
+
+plastics_long <- plastics_top |>
+  filter(parent_company %in% top10_companies,
+         country_code %in% top10_codes) |>
+  select(country, year, parent_company, hdpe, ldpe, o, pet, pp, ps, pvc) |>
+  pivot_longer(
+    cols = c(hdpe, ldpe, o, pet, pp, ps, pvc),
+    names_to = "plastic_type",
+    values_to = "total_plastic"
+  ) |>
+  filter(total_plastic > 0)
+
+plastics_long |>
+  mutate(
+    country = fct_rev(fct_reorder(country, total_plastic, sum)),
+    parent_company = fct_rev(fct_reorder(parent_company, total_plastic, sum)),
+    parent_company = recode(parent_company,
+    "Universal Robina Corporation" = "Universal Robina",
+    "The Coca-Cola Company" = "Coca-Cola")
+  ) |> 
+  ggplot(aes(axis1 = country,
+             axis2 = parent_company,
+             y = total_plastic)) +
+  scale_x_discrete(limits = c("Country", "Company"), 
+                   expand = c(.2, .05)) +
+  geom_alluvium(aes(fill = plastic_type)) +
+  geom_stratum() +
+  ggfittext::geom_fit_text(stat = "stratum", 
+                           aes(label = after_stat(stratum)),  
+                           width = 1/4, 
+                           min.size = 3) +
+  theme_bw() +
+  scale_fill_paletteer_d("ggthemes::Color_Blind") +
+  xlab("Countries vs. Companies") +
+  ylab("Total Plastic") +
+  ggtitle("Plastic Waste from Country to Company",
+          "Stratified by Plastic Type") + 
+  labs(fill = "Plastic Type")
 ```
