@@ -318,7 +318,7 @@ renewable_summary <- plastics_top |>
   filter(country != "Ecuador") |>
   arrange(desc(total_waste))
 
-unique(renewable_summary$country)
+renewable_summary
 ```
 
 **New Plot:** Plastic Waste vs. Renewable Energy Percentage by Country
@@ -334,7 +334,7 @@ ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
   ) +
   labs(
     title = "Plastic Waste vs Renewable Energy by Country",
-    subtitle = "Top 10 Countries by Total Plastic Waste",
+    subtitle = "Top 50 Countries by Total Plastic Waste",
     x = "Total Plastic Waste",
     y = "Renewable Energy (% of total energy consumption)"
   ) +
@@ -352,12 +352,13 @@ ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
 
 ```{r}
 library(ggalluvial)
+library(paletteer)
 ```
 
 ```{r}
-top50_codes <- plastics_top |>
+top10_codes <- plastics_top |>
   distinct(country_code) |>
-  slice_head(n = 50) |>
+  slice_head(n = 10) |>
   pull(country_code)
 
 country_plot <- plastics_top |>
@@ -382,13 +383,19 @@ ggplot(country_plot, aes(x = gdp, y = total_plastic)) +
 
 ```
 
-```{r}
-top10_companies <- unique(company_summary$parent_company)
-top10_codes <- top_plastic_countries[1:5]
+**RQ:** Which countries have the highest amount of plastic waste, and what from what companies does that waste originate from?
 
+```{r}
+#| fig-alt: "Sankey diagram showing how plastic waste flows between countries and companies. The diagram is stratified by the type of plastic. The Philippines and Nigeria have the highest amount of waste flowing into a variety of different companies. The most common type of plastic waste is PET."
+
+## Get a list of the top 10 companies and the top 5 countries in plastic waste
+top10_companies <- unique(company_summary$parent_company)
+top5_codes <- top_plastic_countries[1:5]
+
+## Convert the data into the long format
 plastics_long <- plastics_top |>
   filter(parent_company %in% top10_companies,
-         country_code %in% top10_codes) |>
+         country_code %in% top5_codes) |>
   select(country, year, parent_company, hdpe, ldpe, o, pet, pp, ps, pvc) |>
   pivot_longer(
     cols = c(hdpe, ldpe, o, pet, pp, ps, pvc),
@@ -397,10 +404,17 @@ plastics_long <- plastics_top |>
   ) |>
   filter(total_plastic > 0)
 
+## Create the Sankey diagram
 plastics_long |>
   mutate(
-    country = fct_rev(fct_reorder(country, total_plastic, sum)),
-    parent_company = fct_rev(fct_reorder(parent_company, total_plastic, sum)),
+    country = fct_reorder(country, 
+                          total_plastic, 
+                          sum, 
+                          .desc = TRUE),
+    parent_company = fct_reorder(parent_company, 
+                                 total_plastic, 
+                                 sum, 
+                                 .desc = TRUE),
     parent_company = recode(parent_company,
     "Universal Robina Corporation" = "Universal Robina",
     "The Coca-Cola Company" = "Coca-Cola")
