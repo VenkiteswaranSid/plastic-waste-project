@@ -508,8 +508,36 @@ $\beta_1$ = slope parameter
 $\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
 
 ```{r}
+## Used the broom package to better format our summary https://broom.tidymodels.org/
+library(broom)
 model <- lm(renewable_pct ~ total_waste, data = renewable_summary)
-summary(model)
+
+tidy(model) |>
+  gt() |>
+  tab_header(
+    title    = "Linear Regression Results",
+    subtitle = "Response: Renewable Energy Percentage | Predictor: Total Waste"
+  ) |>
+  tab_style(style = cell_text(weight = "bold"),
+    locations = list(cells_column_labels(), 
+                     cells_title())) |>
+  tab_caption("Table 1: Effect of Total Waste on Renewable Energy Percentage") |>
+  cols_label(
+    term      = "Term",
+    estimate  = "Estimate",
+    std.error = "Std. Error",
+    statistic = "t-Statistic",
+    p.value   = "p-Value"
+  ) |>
+  fmt_number(
+    columns  = c(estimate, std.error, statistic),
+    decimals = 4
+  ) |>
+  fmt_number(
+    columns  = p.value,
+    decimals = 4
+  ) 
+
 ```
 
-A simple linear regression model was conducted to explore the relationship between total plastic waste and renewable energy percentage among the top 10 countries. The estimated slope was 0.0001766, showing a slight positive relationship. However, this relationship was not statistically significant (p = 0.3389). The model explained only 11.45% of the variability in renewable energy percentage (R² = 0.1145). Therefore, there is insufficient evidence to conclude that total plastic waste is associated with renewable energy use in these countries.
+A simple linear regression model was conducted to explore the relationship between total plastic waste and renewable energy percentage among the top 10 countries. The estimated slope was 0.0002, showing a slight positive relationship. However, this relationship was not statistically significant from the p value of 0.0905, leading to the conclusion that there is insufficient evidence to conclude that total plastic waste is associated with renewable energy use in these countries.
