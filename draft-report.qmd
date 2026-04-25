@@ -508,8 +508,12 @@ $\beta_1$ = slope parameter
 $\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
 
 ```{r}
-## Used the broom package to better format our summary https://broom.tidymodels.org/
+library(gt)
 library(broom)
+```
+
+```{r}
+## Used the broom package to better format our summary https://broom.tidymodels.org/
 model <- lm(renewable_pct ~ total_waste, data = renewable_summary)
 
 tidy(model) |>
