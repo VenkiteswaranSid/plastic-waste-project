@@ -5,6 +5,8 @@ editor: visual
 author: "Siddharth Venkiteswaran"
 embed-resources: true
 warnings: false
+code-fold: true
+theme: dark
 ---
 
 ## Plastic Pollution
@@ -383,6 +385,58 @@ ggplot(country_plot, aes(x = gdp, y = total_plastic)) +
 
 ```
 
+## Project Checkpoint #4
+
+**Improved Plot**
+
+```{r}
+#| fig-alt: "Scatterplot of total plastic waste versus renewable energy consumption by country, with most countries clustered at low waste levels and a few high-waste outliers such as Nigeria. The plot shows no strong relationship between the variables."
+
+renewable_summary <- renewable_summary |>
+  mutate(
+    group = case_when(
+      country_code %in% c("NGA", "CHE", "PHL") ~ country_code,
+      total_waste < 40000 & renewable_pct < 40 ~ "Low waste / Low renewable",
+      total_waste < 40000 & renewable_pct >= 40 ~ "Low waste / High renewable",
+      TRUE ~ "Other"
+    ), 
+    group = factor(group, 
+      levels = c("Low waste / Low renewable",
+                 "Low waste / High renewable",
+                 "NGA",
+                 "PHL",
+                 "CHE")
+    )
+  )
+
+ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct, color = group)) +
+  geom_point(size = 2) +
+  geom_text_repel(
+    aes(label = country_code),
+    size = 2
+  ) +
+  labs(
+    title = "Plastic Waste vs Renewable Energy by Country",
+    subtitle = "Top 50 Countries by Total Plastic Waste",
+    x = "Total Plastic Waste",
+    y = "Renewable Energy (% of total energy consumption)",
+    color = "Group"
+  ) +
+  scale_color_manual(values = c(
+  "Low waste / Low renewable" = "#1f77b4",  
+  "Low waste / High renewable" = "#2ca02c", 
+  "Other" = "gray70",
+  "NGA" = "#e41a1c", 
+  "CHE" = "#ff7f00",  
+  "PHL" = "#000000"    
+)) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12),
+    plot.margin = margin(15, 15, 15, 15))
+```
+
 **RQ:** Which countries have the highest amount of plastic waste, and what from what companies does that waste originate from?
 
 ```{r}
@@ -438,3 +492,24 @@ plastics_long |>
           "Stratified by Plastic Type") + 
   labs(fill = "Plastic Type")
 ```
+
+A simple linear regression model was used:
+
+$Y_i$ = $\beta_0$ + $\beta_1 X_i$ + $\varepsilon_i$
+
+$Y_i$ = renewable energy percentage for country $i$
+
+$X_i$ = total plastic waste for country $i$
+
+$\beta_0$ = intercept
+
+$\beta_1$ = slope parameter
+
+$\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
+
+```{r}
+model <- lm(renewable_pct ~ total_waste, data = renewable_summary)
+summary(model)
+```
+
+A simple linear regression model was conducted to explore the relationship between total plastic waste and renewable energy percentage among the top 10 countries. The estimated slope was 0.0001766, showing a slight positive relationship. However, this relationship was not statistically significant (p = 0.3389). The model explained only 11.45% of the variability in renewable energy percentage (R² = 0.1145). Therefore, there is insufficient evidence to conclude that total plastic waste is associated with renewable energy use in these countries.
