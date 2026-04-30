@@ -268,35 +268,19 @@ plastics_top <- plastics_top |>
 
 **GDP Data Description**
 
-The GDP data set has been extracted from the API Ninjas “GDP” API. In this case, the data has been programatically obtained in R by making an API call for each country by its ISO3 country code. Annual Gross Domestic Product (GDP) in U.S. Dollars has been recorded in this data set.
+The GDP data was extracted from API Ninjas' "GDP" API endpoint. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
 
-However, for this assignment, the years included have been limited to 2019 and 2020. Therefore, each country will appear twice in this data set corresponding to the two years. The data is in the form of a Tidy Data Frame, and it would later be merged with the plastic data set.
+The GDP data is collected with each country being treated as an observational unit. This data follows the nature of a time series, with data being collected back almost 40 to 50 years in the past for each observational unit.
 
-Key variables include:
-
--   country: ISO3 country code
-
-<!-- -->
-
--   year: year of observation (2019 or 2020)
-
--   value: GDP (nominal) in U.S. dollars
+API Ninjas does not offer much transparency in their methods of data collection, only that they gather what is already collected from different sources and compile it together into their API endpoints. Additionally, they do not provide any information on why this data was gathered, only that they aim to provide GDP specific data for comparing one country to another.
 
 **Renewable Energy Data Description**
 
-The renewable energy dataset was sourced from an open-source data set provided on GitHub and is based on World Development Indicators. The data set consists of country-specific information about renewable energy consumption over time.
+The renewable energy data was gathered from an open source-data set provided on Github, but it originates from the World Bank's World Development Indicators data set. This data was gathered by the World Bank as part of a project to create a compilation of cross country comparable data on factors regarding the development of countries. The data for many of these indicators goes back for more than 50 years for many of these countries.
 
-In this case, the renewable energy data set has been filtered to include only the years 2019 and 2020 as well as only those countries that appear in the plastic data set. This filtering was done using ISO3 codes.
+The indicators data set is collected with each country being treated as an observational unit. The nature of the data itself is to be treated as time series data that proceeds along until 2022, which is the last year where data was collected in the renewable energy data set.
 
-Key variables include:
-
--   Country Code : ISO3 country code
-
--   Year: year of observation
-
--   renewable energy consumption, measured as the percentage of total final energy consumption from renewable sources
-
-This dataset was merged with the GDP and plastics datasets to support comparative analysis across countries.
+Per the World Bank's website, much of the data is collected through using official sources reported by these specific countries, with adjustments being made in order to keep the measurements consistent across all countries in the indicators data set. This data was collected in order to provide a better picture of how many countries are faring through their development stages, and to gather information on how to fight poverty in many areas of the world. By having consistent data that can be compared across different areas, the indicators aim to show what differentiates each other from one another. \
 
 ### Additional Data Summaries/Visualizations
 
