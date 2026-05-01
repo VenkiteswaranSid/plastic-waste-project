@@ -104,28 +104,7 @@ plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
 
 ```{r}
-overall_total <- sum(plastics$grand_total, na.rm = TRUE)
-
-company_share <- function(x, overall_total) {
-  sum(x, na.rm = TRUE) / overall_total
-}
-
-plastics |>
-  filter(!is.na(parent_company),
-         parent_company != "Grand Total",
-         parent_company != "null",
-         parent_company != "NULL",
-         parent_company != "Unbranded") |>
-  group_by(parent_company) |>
-  summarize(
-    total_plastic_waste = sum(grand_total, na.rm = TRUE),
-    share_of_total = company_share(grand_total, overall_total),
-    .groups = "drop"
-  ) |>
-  arrange(desc(total_plastic_waste)) |>
-  slice_head(n = 10)
-
-company_share2 <- function(input_company) {
+company_total <- function(input_company) {
   
   company_grand_total <- plastics |>
     filter(parent_company == input_company) |>
@@ -143,7 +122,11 @@ plastics |>
          parent_company != "null",
          parent_company != "NULL",
          parent_company != "Unbranded") |>
-  mutate
+  mutate(
+    total_plastic_waste = map_int(parent_company, company_total),
+    share_of_total = total_plastic_waste / sum(total_plastic_waste, na.rm = TRUE)
+  ) |>
+  slice_max(total_plastic_waste, n = 10)
 
 ```
 
