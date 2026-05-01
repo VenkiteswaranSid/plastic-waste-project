@@ -99,15 +99,9 @@ library(broom)
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
 
-### Visualization Sketches
+### RQ #1
 
-<https://excalidraw.com/#json=buS3O8kzDji6O6ABK-REi,E2ouf_AO14QoCr69V5YTWw>
-
-## Data Summaries Using Existing Columns
-
-### Data Summary 1
-
-**Question**: Which parent companies contribute the most total plastic waste across all countries, and what share of the total recorded waste does each company account for?
+What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
 
 ```{r}
 overall_total <- sum(plastics$grand_total, na.rm = TRUE)
@@ -116,7 +110,7 @@ company_share <- function(x, overall_total) {
   sum(x, na.rm = TRUE) / overall_total
 }
 
-company_summary <- plastics |>
+plastics |>
   filter(!is.na(parent_company),
          parent_company != "Grand Total",
          parent_company != "null",
@@ -131,7 +125,26 @@ company_summary <- plastics |>
   arrange(desc(total_plastic_waste)) |>
   slice_head(n = 10)
 
-company_summary
+company_share2 <- function(input_company) {
+  
+  company_grand_total <- plastics |>
+    filter(parent_company == input_company) |>
+    distinct(year, grand_total) |>
+    pull(grand_total) 
+  
+  sum(company_grand_total, na.rm = TRUE)
+  
+}
+
+plastics |>
+  distinct(parent_company) |>
+  filter(!is.na(parent_company),
+         parent_company != "Grand Total",
+         parent_company != "null",
+         parent_company != "NULL",
+         parent_company != "Unbranded") |>
+  mutate
+
 ```
 
 ### Data Summary 2
