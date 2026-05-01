@@ -91,7 +91,48 @@ library(broom)
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
 
-**Create a function to pull data from the API**
+1.  Creating custom functions for data analysis later
+
+```{r}
+## Custom function to get the total number of plastics for each country
+total_plastics <- function(input_country){
+  
+  grand_total_plastics <- plastics |>
+    filter(country == input_country) |>
+    distinct(year, grand_total) |>
+    pull(grand_total)
+  
+  sum(grand_total_plastics, na.rm = TRUE)
+}
+
+## Custom function to get total number of plastics for each company
+company_total <- function(input_company) {
+  
+  company_grand_total <- plastics |>
+    filter(parent_company == input_company) |>
+    distinct(year, grand_total) |>
+    pull(grand_total) 
+  
+  sum(company_grand_total, na.rm = TRUE)
+  
+}
+
+## Custom function for outputting average gdp and plastic total
+gdp_plastics <- function(input_country){
+  
+  country_data <- plastics_top |>
+    filter(country == input_country) |>
+    distinct(year, grand_total, gdp_per_capita_nominal)
+  
+  tibble(
+    plastic_total = sum(country_data$grand_total, na.rm = TRUE),
+    avg_gdp_per_capita_nominal = mean(country_data$gdp_per_capita_nominal, na.rm = TRUE)
+  )
+}
+
+```
+
+2.  Create a function to pull data from the API
 
 ```{r}
 #| eval: false
@@ -108,20 +149,9 @@ get_gdp <- function(country_code, key = my_key) {
 }
 ```
 
-**Obtain a list of the top 50 countries in plastic waste totals**
+3.  Obtain a list of the top 50 countries in plastic waste totals
 
 ```{r}
-## Making a custom function to get the total number of plastics for each country
-total_plastics <- function(input_country){
-  
-  grand_total_plastics <- plastics |>
-    filter(country == input_country) |>
-    distinct(year, grand_total) |>
-    pull(grand_total)
-  
-  sum(grand_total_plastics, na.rm = TRUE)
-}
-
 ## Create a list of the top 10 countries with the highest total plastics
 top_plastic_countries <- plastics |>
   distinct(country) |>
@@ -136,7 +166,7 @@ top_plastic_countries <- plastics |>
   pull(country_code)
 ```
 
-**Pull data from the API**
+4.  Pull data from the API
 
 ```{r}
 #| eval: false
@@ -147,7 +177,7 @@ gdp_list <- top_plastic_countries |>
 
 ```
 
-**Turn the data into a CSV file**
+5.  Turn the data into a CSV file
 
 ```{r}
 #| eval: false
@@ -169,7 +199,7 @@ write.csv(gdp_data, "gdp.csv", row.names = FALSE)
 gdp_df <- read.csv("gdp.csv")
 ```
 
-**Join the data sets together**
+6.  Join the data sets together
 
 ```{r}
 #| warning: false
@@ -196,20 +226,7 @@ There were two main questions that stood out after an initial at all of these da
 
 ### RQ #1
 
-**Start by looking at the companies that contribute the most to plastic waste from the audits:**
-
 ```{r}
-company_total <- function(input_company) {
-  
-  company_grand_total <- plastics |>
-    filter(parent_company == input_company) |>
-    distinct(year, grand_total) |>
-    pull(grand_total) 
-  
-  sum(company_grand_total, na.rm = TRUE)
-  
-}
-
 company_summary <- plastics |>
   distinct(parent_company) |>
   filter(!is.na(parent_company),
@@ -249,8 +266,6 @@ company_summary |>
 
 ```
 
-**Looking into which countries have the highest amount of plastic waste:**
-
 ```{r}
 ## Uses iteration and a custom function
 plastics |>
@@ -282,8 +297,6 @@ plastics |>
   )
 
 ```
-
-**Plotting the relationship between countries and companies when it comes to plastic waste:**
 
 ```{r}
 #| fig-alt: "Sankey diagram showing how plastic waste flows between countries and companies. The diagram is stratified by the type of plastic. The Philippines and Nigeria have the highest amount of waste flowing into a variety of different companies. The most common type of plastic waste is PET."
@@ -370,21 +383,11 @@ heatmap_data |>
   scale_fill_viridis_c() 
 ```
 
+**Analysis:** From the summary tables and the plots, it is clear that the top countries with the most plastic pollution are very much tied with the companies most responsible for creating that plastic waste. The Sankey diagram shows
+
 ### RQ #2
 
 ```{r}
-gdp_plastics <- function(input_country){
-  
-  country_data <- plastics_top |>
-    filter(country == input_country) |>
-    distinct(year, grand_total, gdp_per_capita_nominal)
-  
-  tibble(
-    plastic_total = sum(country_data$grand_total, na.rm = TRUE),
-    avg_gdp_per_capita_nominal = mean(country_data$gdp_per_capita_nominal, na.rm = TRUE)
-  )
-}
-
 plastics_top |>
   distinct(country) |>
   filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
@@ -454,66 +457,13 @@ plastics_top |>
 
 ### Additional Data Summaries/Visualizations
 
-**RQ:** What is the relationship between total plastic was and percentage of renewable energy, for the top 10 countries in total plastic waste ?
-
-```{r}
-renewable_summary <- plastics_top |>
-  filter(country_code %in% top_plastic_countries) |>
-  distinct(country, 
-           country_code, 
-           year, 
-           grand_total, 
-           Value) |>
-  group_by(country, 
-           country_code) |>
-  summarize(
-    total_waste = sum(grand_total, na.rm = TRUE),
-    renewable_pct = mean(Value, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  filter(country != "Ecuador") |>
-  arrange(desc(total_waste))
-
-renewable_summary
-```
-
-**New Plot:** Plastic Waste vs. Renewable Energy Percentage by Country
-
-```{r}
-ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
-  geom_point(size = 3, color = "black") +
-  geom_text_repel(
-    aes(label = country_code),
-    size = 4,
-    box.padding = 0.5,
-    point.padding = 0.5
-  ) +
-  labs(
-    title = "Plastic Waste vs Renewable Energy by Country",
-    subtitle = "Top 50 Countries by Total Plastic Waste",
-    x = "Total Plastic Waste",
-    y = "Renewable Energy (% of total energy consumption)"
-  ) +
-  theme_classic(base_size = 13) +
-  theme(
-    plot.title = element_text(face = "bold", size = 16),
-    plot.subtitle = element_text(size = 12),
-    plot.margin = margin(15, 15, 15, 15),
-    axis.title = element_text(size = 12)
-  )
-
-```
-
 **New Plot:** GDP vs. Total Plastic Waste by Country
 
 ```{r}
-top10_codes <- plastics_top |>
-  distinct(country_code) |>
-  slice_head(n = 10) |>
-  pull(country_code)
+top10_codes <- top_plastic_countries[1:10]
 
 country_plot <- plastics_top |>
-  filter(country_code %in% top10_codes) |>
+  filter(country_code %in% top_plastic_countries) |>
   group_by(country, country_code) |>
   summarize(
     total_plastic = sum(grand_total, na.rm = TRUE),
