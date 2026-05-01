@@ -126,7 +126,29 @@ plastics |>
     total_plastic_waste = map_int(parent_company, company_total),
     share_of_total = total_plastic_waste / sum(total_plastic_waste, na.rm = TRUE)
   ) |>
-  slice_max(total_plastic_waste, n = 10)
+  slice_max(total_plastic_waste, n = 10) |>
+  gt() |>
+  tab_header(
+    title = "Company Contribution to Plastic Waste"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    parent_company = "Parent Company",
+    total_plastic_waste = "Total Waste",
+    share_of_total = "Share of Total"
+  ) |>
+  fmt_percent(
+    columns = share_of_total,
+    decimals = 3
+  ) |>
+  tab_caption("Table 1: Amount of Plastic Waste Attributed to Each Company") |>
+  tab_spanner(
+    label = "Plastic Counts",
+    columns = c(total_plastic_waste, share_of_total)
+  )
 
 ```
 
@@ -522,10 +544,6 @@ $\beta_0$ = intercept
 $\beta_1$ = slope parameter
 
 $\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
-
-```{r}
-
-```
 
 ```{r}
 ## Used the broom package to better format our summary https://broom.tidymodels.org/
