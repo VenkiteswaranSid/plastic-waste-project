@@ -69,17 +69,9 @@ Key information collected:
 
 -   Renewable energy consumption, measured as the percentage of total final energy consumption from renewable sources
 
-## Section 2: Research Questions
-
-There were two main questions that stood out after an initial at all of these data sets.
-
-1.  What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
-2.  Do countries with a higher GDP tend to contribute more to plastic waste? Or is the majority of plastic waste concentrated in mainly developing parts of the world?
-
-## Section 3: Summaries and Visualizations
+## Section 2: Reading in the External Data
 
 ```{r}
-## Installing all of the libraries required for this exploration
 library(tidyverse)
 library(glue)
 library(httr)
@@ -99,139 +91,6 @@ library(broom)
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
 
-### RQ #1
-
-What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
-
-```{r}
-company_total <- function(input_company) {
-  
-  company_grand_total <- plastics |>
-    filter(parent_company == input_company) |>
-    distinct(year, grand_total) |>
-    pull(grand_total) 
-  
-  sum(company_grand_total, na.rm = TRUE)
-  
-}
-
-plastics |>
-  distinct(parent_company) |>
-  filter(!is.na(parent_company),
-         parent_company != "Grand Total",
-         parent_company != "null",
-         parent_company != "NULL",
-         parent_company != "Unbranded") |>
-  mutate(
-    total_plastic_waste = map_int(parent_company, company_total),
-    share_of_total = total_plastic_waste / sum(total_plastic_waste, na.rm = TRUE)
-  ) |>
-  slice_max(total_plastic_waste, n = 10) |>
-  gt() |>
-  tab_header(
-    title = "Company Contribution to Plastic Waste"
-  ) |>
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_title()
-  ) |>
-  cols_label(
-    parent_company = "Parent Company",
-    total_plastic_waste = "Total Waste",
-    share_of_total = "Share of Total"
-  ) |>
-  fmt_percent(
-    columns = share_of_total,
-    decimals = 3
-  ) |>
-  tab_caption("Table 1: Amount of Plastic Waste Attributed to Each Company") |>
-  tab_spanner(
-    label = "Plastic Counts",
-    columns = c(total_plastic_waste, share_of_total)
-  )
-
-```
-
-### Data Summary 2
-
-**Question**: Which countries had clean up efforts that found the largest grand total of plastics in 2019 and 2020?
-
-```{r}
-## Uses iteration and a custom function
-total_plastics <- function(input_country){
-  
-  grand_total_plastics <- plastics |>
-    filter(country == input_country) |>
-    distinct(year, grand_total) |>
-    pull(grand_total)
-  
-  sum(grand_total_plastics, na.rm = TRUE)
-}
-
-plastics |>
-  distinct(country) |>
-  filter(country != "EMPTY") |>
-  mutate(
-    plastic_total = map_int(country, total_plastics)
-    ) |>
-  slice_max(plastic_total, n = 10)
-```
-
-## Data Summaries That Modify Columns
-
-### Data Summary 3
-
-**Question**: Which countries have the highest average amount of plastic collected per cleanup event?
-
-```{r}
-plastic_per_event <- function(input_country) {
-  plastics |>
-    filter(country == input_country) |>
-    distinct(year, grand_total, num_events) |>
-    summarise(
-      total_plastic = sum(grand_total, na.rm = TRUE),
-      total_events = sum(num_events, na.rm = TRUE)
-    ) |>
-    mutate(plastic_per_event = total_plastic / total_events) |>
-    pull(plastic_per_event)
-}
-
-plastic_event_summary <- plastics |>
-  distinct(country) |>
-  mutate(plastic_per_event = map_dbl(country, plastic_per_event)) |>
-  slice_max(plastic_per_event, n = 10)
-
-plastic_event_summary
-
-```
-
-### Data Summary 4
-
-**Question**: Which nations had the highest average participation for cleanup events in 2019 and 2020?
-
-```{r}
-cleanup_totals <- function(input_country) {
-  plastics |>
-    filter(country == input_country) |>
-    distinct(num_events, volunteers) |>
-    mutate(total_vol = sum(volunteers, na.rm = T),
-         total_events = sum(num_events, na.rm = T)) |>
-    distinct(total_vol, total_events) |>
-    mutate(vol_per_event = total_vol / total_events) |>
-    pull(vol_per_event)
-}
-
-plastics |>
-  distinct(country) |>
-  mutate(
-    avg_participation = map_dbl(country, cleanup_totals),
-    rounded_participation = round(avg_participation)
-  ) |>
-  slice_max(avg_participation, n = 20)
-```
-
-## Project Checkpoint #3
-
 **Create a function to pull data from the API**
 
 ```{r}
@@ -249,12 +108,21 @@ get_gdp <- function(country_code, key = my_key) {
 }
 ```
 
-**Obtain a list of the top 10 countries in plastic waste totals**
+**Obtain a list of the top 50 countries in plastic waste totals**
 
 ```{r}
+## Making a custom function to get the total number of plastics for each country
+total_plastics <- function(input_country){
+  
+  grand_total_plastics <- plastics |>
+    filter(country == input_country) |>
+    distinct(year, grand_total) |>
+    pull(grand_total)
+  
+  sum(grand_total_plastics, na.rm = TRUE)
+}
+
 ## Create a list of the top 10 countries with the highest total plastics
-
-
 top_plastic_countries <- plastics |>
   distinct(country) |>
   filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)")) |>  ## Dropping Taiwan because of its contested status in the world (some supplemental data does not include Taiwan)
@@ -266,7 +134,6 @@ top_plastic_countries <- plastics |>
   filter(plastic_total != 61123) |> ## Added security for removing the specific duplicate
   slice_max(plastic_total, n = 50) |>
   pull(country_code)
-
 ```
 
 **Pull data from the API**
@@ -278,10 +145,6 @@ Sys.sleep(20)
 gdp_list <- top_plastic_countries |>
   map(get_gdp)
 
-## Double check for NAs
-gdp_list |>
-  is.na() |>
-  sum()
 ```
 
 **Turn the data into a CSV file**
@@ -320,21 +183,273 @@ plastics_top <- plastics |>
   ) |>
   filter(country_code %in% top_plastic_countries) |>
   left_join(gdp_df)
+```
 
-head(plastics_top)
+## Section 3: Research Questions
+
+There were two main questions that stood out after an initial at all of these data sets.
+
+1.  What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
+2.  Do countries with a higher GDP tend to contribute more to plastic waste? Or is the majority of plastic waste concentrated in mainly developing parts of the world?
+
+## Section 4: Summaries and Visualizations
+
+### RQ #1
+
+**Start by looking at the companies that contribute the most to plastic waste from the audits:**
+
+```{r}
+company_total <- function(input_company) {
+  
+  company_grand_total <- plastics |>
+    filter(parent_company == input_company) |>
+    distinct(year, grand_total) |>
+    pull(grand_total) 
+  
+  sum(company_grand_total, na.rm = TRUE)
+  
+}
+
+company_summary <- plastics |>
+  distinct(parent_company) |>
+  filter(!is.na(parent_company),
+         parent_company != "Grand Total",
+         parent_company != "null",
+         parent_company != "NULL",
+         parent_company != "Unbranded") |>
+  mutate(
+    total_plastic_waste = map_int(parent_company, company_total),
+    share_of_total = total_plastic_waste / sum(total_plastic_waste, na.rm = TRUE)
+  ) |>
+  slice_max(total_plastic_waste, n = 10) 
+  
+company_summary |>   
+  gt() |>
+  tab_header(
+    title = "Company Contribution to Plastic Waste"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    parent_company = "Parent Company",
+    total_plastic_waste = "Total Waste",
+    share_of_total = "Share of Total"
+  ) |>
+  fmt_percent(
+    columns = share_of_total,
+    decimals = 3
+  ) |>
+  tab_caption("Table 1: Amount of Plastic Waste Attributed to Each Company") |>
+  tab_spanner(
+    label = "Plastic Counts",
+    columns = c(total_plastic_waste, share_of_total)
+  )
+
+```
+
+**Looking into which countries have the highest amount of plastic waste:**
+
+```{r}
+## Uses iteration and a custom function
+plastics |>
+  distinct(country) |>
+  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
+  mutate(
+    plastic_total = map_int(country, total_plastics),
+    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
+    ) |>
+  slice_max(plastic_total, n = 10) |>
+  gt() |>
+  tab_header(
+    title = "Countries with the Most Plastic Waste"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    country = "Country",
+    plastic_total = "Total Waste"
+  ) |>
+  tab_caption("Table 2: Amount of Plastic Waste From Each Country") |>
+  tab_footnote(
+    footnote = "Taiwan and Republic of China were removed from data set due to the contested nature of the region. Additionally, duplicates were removed by choosing to keep the entry with higher values for plastic waste.",
+    locations = cells_column_labels(
+      columns = country
+    )
+  )
+
+```
+
+**Plotting the relationship between countries and companies when it comes to plastic waste:**
+
+```{r}
+#| fig-alt: "Sankey diagram showing how plastic waste flows between countries and companies. The diagram is stratified by the type of plastic. The Philippines and Nigeria have the highest amount of waste flowing into a variety of different companies. The most common type of plastic waste is PET."
+
+## Get a list of the top 10 companies and the top 5 countries in plastic waste
+top10_companies <- unique(company_summary$parent_company)
+top5_codes <- top_plastic_countries[1:5]
+
+## Convert the data into the long format
+plastics_long <- plastics_top |>
+  filter(parent_company %in% top10_companies,
+         country_code %in% top5_codes) |>
+  select(country, year, parent_company, hdpe, ldpe, o, pet, pp, ps, pvc) |>
+  pivot_longer(
+    cols = c(hdpe, ldpe, o, pet, pp, ps, pvc),
+    names_to = "plastic_type",
+    values_to = "total_plastic"
+  ) |>
+  filter(total_plastic > 0)
+
+## Create the Sankey diagram
+plastics_long |>
+  mutate(
+    country = fct_reorder(country, 
+                          total_plastic, 
+                          sum, 
+                          .desc = TRUE),
+    parent_company = fct_reorder(parent_company, 
+                                 total_plastic, 
+                                 sum, 
+                                 .desc = TRUE),
+    parent_company = recode(parent_company,
+    "Universal Robina Corporation" = "Universal Robina",
+    "The Coca-Cola Company" = "Coca-Cola"),
+    country = recode(country,
+                     "NIGERIA" = "Nigeria")
+  ) |> 
+  ggplot(aes(axis1 = country,
+             axis2 = parent_company,
+             y = total_plastic)) +
+  scale_x_discrete(limits = c("Country", "Company"), 
+                   expand = c(.2, .05)) +
+  geom_alluvium(aes(fill = plastic_type)) +
+  geom_stratum() +
+  ggfittext::geom_fit_text(stat = "stratum", 
+                           aes(label = after_stat(stratum)),  
+                           width = 1/4, 
+                           min.size = 3) +
+  theme_bw() +
+  scale_fill_paletteer_d("ggthemes::Color_Blind") +
+  xlab("Countries vs. Companies") +
+  ylab("Total Plastic") +
+  ggtitle("Plastic Waste from Country to Company",
+          "Stratified by Plastic Type") + 
+  labs(fill = "Plastic Type")
 ```
 
 ```{r}
-renewable_data <- read.csv("renewable-energy.csv")
-## Data found from https://github.com/datasets/world-development-indicators/tree/main/indicators/eg.fec.rnew.zs
+#| fig-alt: "Heatmap showing where the most dense concentration of plastic waste lies between combinations of country and parent company. From the plot, the densest concentration of plastic waste lies in the company of La Doo and Nigeria. Additionally, the Coca-Cola Company has its plastic waste spread out across most of the top 5 countries in plastic waste, with the most waste being in the Philippines."
 
-plastics_top <- plastics_top |>
-  left_join(renewable_data |>
-              filter(Year %in% c(2019, 2020),
-                     Country.Code %in% plastics_top$country_code), 
-            by = c("country_code" = "Country.Code", 
-                   "year" = "Year")) |>
-  select(-Country.Name)
+heatmap_data <- plastics_top |>
+  filter(
+    !is.na(parent_company),
+    !country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria"),
+    parent_company != "Grand Total",
+    parent_company != "null",
+    parent_company != "NULL",
+    parent_company != "Unbranded"
+  ) |>
+  group_by(country, parent_company, country_code) |>
+  summarize(plastic_total = sum(grand_total, na.rm = TRUE), .groups = "drop")
+
+heatmap_data |>
+  filter(country_code %in% top5_codes, parent_company %in% top10_companies) |>
+  mutate(country = recode(country,
+                          "NIGERIA" = "Nigeria")) |>
+  ggplot(aes(x = country, y = parent_company, fill = plastic_total)) +
+  geom_tile() +
+  labs(title = "Country vs. Company Contribution to Plastic Waste",
+       x = "Country",
+       y = "Parent Company",
+       fill = "Total Plastic") +
+  theme_bw() +
+  scale_fill_viridis_c() 
+```
+
+### RQ #2
+
+```{r}
+gdp_plastics <- function(input_country){
+  
+  country_data <- plastics_top |>
+    filter(country == input_country) |>
+    distinct(year, grand_total, gdp_per_capita_nominal)
+  
+  tibble(
+    plastic_total = sum(country_data$grand_total, na.rm = TRUE),
+    avg_gdp_per_capita_nominal = mean(country_data$gdp_per_capita_nominal, na.rm = TRUE)
+  )
+}
+
+plastics_top |>
+  distinct(country) |>
+  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
+  mutate(
+    result = map(country, gdp_plastics),
+    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
+  ) |>
+  unnest(result) |>
+  slice_max(plastic_total, n = 10) |>
+  gt() |>
+  tab_header(
+    title = "Comparing Average GDP with Plastic Waste"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    country = "Country",
+    plastic_total = "Total Waste",
+    avg_gdp_per_capita_nominal = "GDP Per Capita (Average)"
+  ) |>
+  tab_caption("Table 3: Average GDP Compared to Plastic Waste From Each Country") |>
+  tab_spanner(
+    label = "Country Statistics",
+    columns = c(plastic_total, avg_gdp_per_capita_nominal)
+  ) |>
+  fmt_currency(columns = avg_gdp_per_capita_nominal,
+             decimals = 2) |>
+  tab_footnote(
+    footnote = "Expressed in billions of USD",
+    locations = cells_column_labels(
+      columns = avg_gdp_per_capita_nominal
+    ))
+```
+
+```{r}
+plastics_top |>
+  distinct(country) |>
+  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
+  mutate(
+    result = map(country, gdp_plastics),
+    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
+  ) |>
+  unnest(result) |>
+  mutate(gdp_category = case_when(
+    avg_gdp_per_capita_nominal < 5000  ~ "Low Income",
+    avg_gdp_per_capita_nominal < 20000 ~ "Middle Income",
+    avg_gdp_per_capita_nominal >= 20000 ~ "High Income"
+  )) |>
+  slice_max(plastic_total, n = 10) |>
+  select(country, gdp_category) |>
+  gt() |>
+  tab_header(
+    title = "Top Countries by GDP Classification"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    country = "Country",
+    gdp_category = "GDP Category"
+  ) |>
+  tab_caption("Table 4: Classifying the Top Countries in Plastic Waste by GDP") 
 ```
 
 ### Additional Data Summaries/Visualizations
@@ -390,10 +505,6 @@ ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct)) +
 ```
 
 **New Plot:** GDP vs. Total Plastic Waste by Country
-
-```{r}
-
-```
 
 ```{r}
 top10_codes <- plastics_top |>
@@ -473,62 +584,6 @@ ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct, color = group)
     plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 12),
     plot.margin = margin(15, 15, 15, 15))
-```
-
-**RQ:** Which countries have the highest amount of plastic waste, and what from what companies does that waste originate from?
-
-```{r}
-#| fig-alt: "Sankey diagram showing how plastic waste flows between countries and companies. The diagram is stratified by the type of plastic. The Philippines and Nigeria have the highest amount of waste flowing into a variety of different companies. The most common type of plastic waste is PET."
-
-## Get a list of the top 10 companies and the top 5 countries in plastic waste
-top10_companies <- unique(company_summary$parent_company)
-top5_codes <- top_plastic_countries[1:5]
-
-## Convert the data into the long format
-plastics_long <- plastics_top |>
-  filter(parent_company %in% top10_companies,
-         country_code %in% top5_codes) |>
-  select(country, year, parent_company, hdpe, ldpe, o, pet, pp, ps, pvc) |>
-  pivot_longer(
-    cols = c(hdpe, ldpe, o, pet, pp, ps, pvc),
-    names_to = "plastic_type",
-    values_to = "total_plastic"
-  ) |>
-  filter(total_plastic > 0)
-
-## Create the Sankey diagram
-plastics_long |>
-  mutate(
-    country = fct_reorder(country, 
-                          total_plastic, 
-                          sum, 
-                          .desc = TRUE),
-    parent_company = fct_reorder(parent_company, 
-                                 total_plastic, 
-                                 sum, 
-                                 .desc = TRUE),
-    parent_company = recode(parent_company,
-    "Universal Robina Corporation" = "Universal Robina",
-    "The Coca-Cola Company" = "Coca-Cola")
-  ) |> 
-  ggplot(aes(axis1 = country,
-             axis2 = parent_company,
-             y = total_plastic)) +
-  scale_x_discrete(limits = c("Country", "Company"), 
-                   expand = c(.2, .05)) +
-  geom_alluvium(aes(fill = plastic_type)) +
-  geom_stratum() +
-  ggfittext::geom_fit_text(stat = "stratum", 
-                           aes(label = after_stat(stratum)),  
-                           width = 1/4, 
-                           min.size = 3) +
-  theme_bw() +
-  scale_fill_paletteer_d("ggthemes::Color_Blind") +
-  xlab("Countries vs. Companies") +
-  ylab("Total Plastic") +
-  ggtitle("Plastic Waste from Country to Company",
-          "Stratified by Plastic Type") + 
-  labs(fill = "Plastic Type")
 ```
 
 A simple linear regression model was used:
