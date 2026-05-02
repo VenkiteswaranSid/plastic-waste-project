@@ -493,7 +493,7 @@ tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
   cols_label(
     gdp_quantile = "GDP Category",
     total_plastic = "Total Plastic",
-    avg_gdp_per_capita_nominal = "Average GDP Per Capita",
+    avg_gdp_per_capita_nominal = "GDP Per Capita (Average)",
     share_of_total = "Share of Total"
   ) |>
   tab_caption("Table 4: Plastic Waste Attributed to Different GDP Levels") |>
@@ -531,8 +531,7 @@ rq2_dumbbell <- plastics_top %>%
     plastic_rank = min_rank(desc(total_plastic)),
     rank_gap = abs(gdp_rank - plastic_rank)
   ) %>%
-  arrange(desc(rank_gap)) %>%
-  slice_head(n = 12) %>%
+  slice_max(total_plastic, n = 10) %>%
   mutate(country = fct_reorder(country, rank_gap))
 
 ggplot(rq2_dumbbell) +
@@ -621,7 +620,7 @@ $Y_i$ = $\beta_0$ + $\beta_1 X_i$ + $\varepsilon_i$
 
 $Y_i$ = total plastic waste for country $i$
 
-$X_i$ = GDP (nominal) for country $i$
+$X_i$ = GDP per capita (nominal) for country $i$
 
 $\beta_0$ = intercept
 
@@ -660,10 +659,10 @@ tidy(model_gdp) |>
   )
 ```
 
-**Analysis:** From the summary tables that were constructed, it would appear that countries with higher levels of plastic pollution tend to be of a lower income level in terms of GDP per capita. The total plastic waste for countries with low GDP's per capita are much higher than that of countries with middle and high GDP's per capita. However, upon further inspection, this is refuted.
+**Analysis:** From the summary tables that were constructed, it would appear that countries with higher levels of plastic pollution tend to be of a lower income level in terms of GDP per capita. The total plastic waste for countries with low GDP's per capita are much higher than that of countries with middle and high GDP's per capita.
 
-The dumbbell plot compares each country’s rank in GDP per capita (blue) with its rank in total plastic waste (orange), with gray lines showing the gap between the two. If higher GDP per capita led to more plastic waste, the points would be close together, but many countries show large differences. For example, Nigeria has a much higher plastic waste rank than its GDP per capita rank, while countries like the United States and Ecuador show the opposite pattern, with higher GDP per capita rankings but lower plastic waste rankings. Although some countries such as Switzerland and Indonesia show more alignment, the overall pattern is inconsistent. This indicates that countries with higher GDP per capita do not consistently produce more plastic waste, suggesting that other factors such as population size, infrastructure, and waste management systems play a more important role in plastic waste production.
+The dumbbell plot seems to support this assumption, as it compares each country’s rank in GDP per capita (blue) with its rank in total plastic waste (orange), with gray lines showing the gap between the two. If higher GDP per capita led to more plastic waste, the points would be close together, but many countries show large differences. For example, Nigeria has a much higher plastic waste rank than its GDP per capita rank, while the United States and shows the opposite pattern, with a higher GDP per capita ranking but a lower plastic waste ranking. Many of the countries in the top 10 in plastic waste seem to be on the lower end of the rankings when it comes to GDP per capita, which would suggest that there could be a negative relationship present here.
 
-Additionally, the scatter plot challenges the assumption that countries with a lower income tend to produce more plastic waste. From the plot, Nigeria and the Philippines are responsible for the highest total plastic waste despite having GDP's per capita near zero, but they are the only points in that area, suggesting them to be potential outliers. There does not seem to be a relationship present for wealthier countries either, as countries like the United States and Germany which have significantly higher GDP's per capita, produce relatively moderate amounts of plastic waste.
+However, the scatter plot challenges this assumption of a negative relationship. From the plot, Nigeria and the Philippines are responsible for the highest total plastic waste despite having GDP's per capita near zero, but they are the only points in that area, suggesting them to be potential outliers. There does not seem to be a relationship present for wealthier countries either, as countries like the United States and Germany which have significantly higher GDP's per capita, produce relatively moderate amounts of plastic waste. Many of the countries seem to have comparable levels of plastic waste at differing levels of GDP per capita.
 
 Finally, from the simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, it is apparent that there is no correlation present between these two variables. The estimated slope was -0.0747, barely indicating a very slight negative relationship and the p-value of 0.7095 is extremely high, which indicates that there is no significant evidence for an association between GDP per capita and total plastic waste.
