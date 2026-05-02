@@ -478,7 +478,38 @@ tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
     total_plastic = map_int(gdp_quantile, quantile_plastic),
     avg_gdp_per_capita_nominal = map_dbl(gdp_quantile, quantile_gdp),
     share_of_total  = total_plastic / sum(total_plastic, na.rm = TRUE)
-  ) 
+  ) |>
+  gt() |>
+  tab_header(
+    title = "Plastic Waste by GDP Categories"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_title()
+  ) |>
+  cols_label(
+    gdp_quantile = "GDP Category",
+    total_plastic = "Total Plastic",
+    avg_gdp_per_capita_nominal = "Average GDP Per Capita",
+    share_of_total = "Share of Total"
+  ) |>
+  tab_caption("Table 4: Plastic Waste Attributed to Different GDP Levels") |>
+  tab_spanner(
+    label = "GDP Statistics",
+    columns = c(avg_gdp_per_capita_nominal, share_of_total)) |>
+  tab_footnote(
+    footnote = "Expressed in billions of USD",
+    locations = cells_column_labels(
+      columns = avg_gdp_per_capita_nominal
+    )) |>
+  fmt_currency(columns = avg_gdp_per_capita_nominal,
+             decimals = 2) |>
+  fmt_number(columns = total_plastic,
+             decimals = 0) |>
+  fmt_percent(columns = share_of_total,
+              decimals = 3)
+
+
 ```
 
 ```{r}
