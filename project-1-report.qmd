@@ -1,5 +1,5 @@
 ---
-title: "Project 1 Draft Report"
+title: "Project 1 Report"
 format: html
 editor: visual
 author: "Siddharth Venkiteswaran"
@@ -50,24 +50,6 @@ Key information collected:
 -   GDP value (nominal) in US dollars
 
 -   GDP growth rate as a percentage
-
-**Renewable Energy Data**
-
-The renewable energy data was gathered from an open source-data set provided on Github, but it originates from the World Bank's World Development Indicators data set. This data was gathered by the World Bank as part of a project to create a compilation of cross country comparable data on factors regarding the development of countries. The data for many of these indicators goes back for more than 50 years for many of these countries.
-
-The indicators data set is collected with each country being treated as an observational unit. The nature of the data itself is to be treated as time series data that proceeds along until 2022, which is the last year where data was collected in the renewable energy data set.
-
-Per the World Bank's website, much of the data is collected through using official sources reported by these specific countries, with adjustments being made in order to keep the measurements consistent across all countries in the indicators data set. This data was collected in order to provide a better picture of how many countries are faring through their development stages, and to gather information on how to fight poverty in many areas of the world. By having consistent data that can be compared across different areas, the indicators aim to show what differentiates each other from one another.
-
-Some cleaning that was done after the acquisition of the renewable energy data was to filter out all years except for 2019 and 2020, as those were the years pertinent to the plastic data set. Filtering was done using ISO3 codes.
-
-Key information collected:
-
--   ISO3 country code
-
--   Year of observation (2019 or 2020)
-
--   Renewable energy consumption, measured as the percentage of total final energy consumption from renewable sources
 
 ## Section 2: Reading in the External Data
 
