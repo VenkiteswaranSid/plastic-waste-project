@@ -23,13 +23,13 @@ From an initial look at what cleaning has been done to the data, it is clear tha
 
 Key information collected:
 
--   Country of which the plastic was collected in
+- Country of which the plastic was collected in
 
--   Year of collection (2019 or 2020)
+- Year of collection (2019 or 2020)
 
--   Company responsible for creating the plastic waste
+- Company responsible for creating the plastic waste
 
--   Grand total of plastics from a country and company combination
+- Grand total of plastics from a country and company combination
 
 **GDP Data**
 
@@ -43,13 +43,13 @@ During the extraction of the data, the scope was limited to only the years of 20
 
 Key information collected:
 
--   ISO3 country code
+- ISO3 country code
 
--   Year of observation (2019 or 2020)
+- Year of observation (2019 or 2020)
 
--   GDP value (nominal) in US dollars
+- GDP value (nominal) in US dollars
 
--   GDP growth rate as a percentage
+- GDP growth rate as a percentage
 
 ## Section 2: Reading in the External Data
 
