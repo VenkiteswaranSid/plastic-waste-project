@@ -453,7 +453,32 @@ quantile_data <- plastics_top |>
                           levels = c("Low GDP", "Mid GDP", "High GDP"))
   )
 
+quantile_plastic <- function(input_quantile) {
+  
+  total <- quantile_data |>
+    filter(gdp_quantile == input_quantile) |>
+    pull(grand_total)
+  
+  sum(total, na.rm = TRUE)
+}
+ 
+quantile_gdp <- function(input_quantile) {
+  
+  avg_gdp_by_country <- quantile_data |>
+    filter(gdp_quantile == input_quantile) |>
+    group_by(country) |>
+    summarise(avg_gdp = mean(gdp_per_capita_nominal, na.rm = TRUE), .groups = "drop") |>
+    pull(avg_gdp)
+  
+  mean(avg_gdp_by_country, na.rm = TRUE)
+}
 
+tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
+  mutate(
+    total_plastic = map_int(gdp_quantile, quantile_plastic),
+    avg_gdp_per_capita_nominal = map_dbl(gdp_quantile, quantile_gdp),
+    share_of_total  = total_plastic / sum(total_plastic, na.rm = TRUE)
+  ) 
 ```
 
 ```{r}
