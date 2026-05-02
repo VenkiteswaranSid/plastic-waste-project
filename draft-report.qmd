@@ -666,3 +666,9 @@ The dumbbell plot seems to support this assumption, as it compares each countryâ
 However, the scatter plot challenges this assumption of a negative relationship. From the plot, Nigeria and the Philippines are responsible for the highest total plastic waste despite having GDP's per capita near zero, but they are the only points in that area, suggesting them to be potential outliers. There does not seem to be a relationship present for wealthier countries either, as countries like the United States and Germany which have significantly higher GDP's per capita, produce relatively moderate amounts of plastic waste. Many of the countries seem to have comparable levels of plastic waste at differing levels of GDP per capita.
 
 Finally, from the simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, it is apparent that there is no correlation present between these two variables. The estimated slope was -0.0747, barely indicating a very slight negative relationship and the p-value of 0.7095 is extremely high, which indicates that there is no significant evidence for an association between GDP per capita and total plastic waste.
+
+## Section 5: Final Conclusions
+
+**RQ #1:** From the visualizations of the Sankey diagram and the heat map, it would appear that two countries, Nigeria and the Philippines, are outliers in the distribution of plastic waste across the globe, as the top companies responsible for plastic waste around the world seem to "spread the wealth" in terms of pollution among different countries.
+
+**RQ #2:** Initially, the summary tables and the dumbbell plot would suggest that countries with a lower GDP per capita tend to have more plastic waste, but a closer inspection of the scatter plot and the linear regression model conclude that there is no observable relationship between the GDP per capita of a country and its plastic waste.
