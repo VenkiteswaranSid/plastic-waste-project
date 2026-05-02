@@ -437,6 +437,7 @@ plastics_top |>
 ```
 
 ```{r}
+## Modify the plastics data to get 3 quantiles and classifications
 quantile_data <- plastics_top |>
   distinct(country, year, grand_total, gdp_per_capita_nominal) |>
   mutate(
@@ -453,6 +454,7 @@ quantile_data <- plastics_top |>
                           levels = c("Low GDP", "Mid GDP", "High GDP"))
   )
 
+## Create functions to get the total plastic waste and the average gdp per capita
 quantile_plastic <- function(input_quantile) {
   
   total <- quantile_data |>
@@ -473,6 +475,7 @@ quantile_gdp <- function(input_quantile) {
   mean(avg_gdp_by_country, na.rm = TRUE)
 }
 
+## Iterate and modify the table
 tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
   mutate(
     total_plastic = map_int(gdp_quantile, quantile_plastic),
@@ -663,4 +666,4 @@ The dumbbell plot compares each country’s rank in GDP per capita (blue) with i
 
 Additionally, the scatter plot challenges the assumption that countries with a lower income tend to produce more plastic waste. From the plot, Nigeria and the Philippines are responsible for the highest total plastic waste despite having GDP's per capita near zero, but they are the only points in that area, suggesting them to be potential outliers. There does not seem to be a relationship present for wealthier countries either, as countries like the United States and Germany which have significantly higher GDP's per capita, produce relatively moderate amounts of plastic waste.
 
-Finally, from the simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, it is apparent that there is no corrleation present between these two varaibles. The estimated slope was -0.0747 indicating a very slight negative relationship. This means that countries with higher GDP per capita tend to produce marginally less plastic waste in this sample. However, the relationship is not statistically significant (p-value = 0.7095). There is no significant evidence for an association between GDP per capita and total plastic waste. The scatter plot suggests that plastic waste is not simply correlated with GDP per capita.
+Finally, from the simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, it is apparent that there is no correlation present between these two variables. The estimated slope was -0.0747, barely indicating a very slight negative relationship and the p-value of 0.7095 is extremely high, which indicates that there is no significant evidence for an association between GDP per capita and total plastic waste.
