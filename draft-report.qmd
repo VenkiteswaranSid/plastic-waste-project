@@ -6,7 +6,7 @@ author: "Siddharth Venkiteswaran"
 embed-resources: true
 warnings: false
 code-fold: true
-theme: dark
+theme: cosmo
 ---
 
 ## Section 1: Describing the Data
@@ -72,6 +72,7 @@ Key information collected:
 ## Section 2: Reading in the External Data
 
 ```{r}
+#| output: false
 library(tidyverse)
 library(glue)
 library(httr)
@@ -87,6 +88,7 @@ library(broom)
 ```
 
 ```{r}
+#| output: false
 ## Read in the plastics data
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
@@ -220,7 +222,7 @@ plastics_top <- plastics |>
 There were two main questions that stood out after an initial at all of these data sets.
 
 1.  What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
-2.  Do countries with a higher GDP tend to contribute more to plastic waste? Or is the majority of plastic waste concentrated in mainly developing parts of the world?
+2.  Do countries with a higher GDP per capita tend to contribute more to plastic waste? Or is the majority of plastic waste concentrated in mainly developing parts of the world?
 
 ## Section 4: Summaries and Visualizations
 
@@ -258,6 +260,8 @@ company_summary |>
     columns = share_of_total,
     decimals = 3
   ) |>
+  fmt_number(columns = total_plastic_waste,
+             decimals = 0) |>
   tab_caption("Table 1: Amount of Plastic Waste Attributed to Each Company") |>
   tab_spanner(
     label = "Plastic Counts",
@@ -294,7 +298,9 @@ plastics |>
     locations = cells_column_labels(
       columns = country
     )
-  )
+  ) |>
+  fmt_number(columns = plastic_total,
+             decimals = 0)
 
 ```
 
@@ -383,7 +389,13 @@ heatmap_data |>
   scale_fill_viridis_c() 
 ```
 
-**Analysis:** From the summary tables and the plots, it is clear that the top countries with the most plastic pollution are very much tied with the companies most responsible for creating that plastic waste. The Sankey diagram shows
+**Analysis:** The summary tables show that the companies with the highest amount of plastic waste are the Coca Cola Company, followed by La Doo, with the rest of the top 10 highest polluting companies being relatively close to each other. Looking at the countries that have the most plastic waste, Nigeria and the Philippines stand out, with both countries being the only ones in the six figure range of plastic waste from Break Free From Plastic's audits in 2019 and 2020.
+
+The Sankey diagram shows the relationship between these countries and the companies responsible for the plastic waste. Nigeria is extremely connected with La Doo, while the Philippines is connected with the Universal Robina Corporation. It must be kept in mind that La Doo only has plastic pollution from Nigeria, so this could be a labelling error in the original data set, or a company specifically based in Nigeria. Both of these relationships show up on the heat map, where we can see both Nigeria and the Philippines contain dense amounts of plastic from these corporations.
+
+Something interesting from the heat map and the Sankey diagram is that Coca Cola, which has the highest amount of plastic waste out of all the companies, does not have plastic waste centered in one specific country, but rather its very dispersed among many countries, indicating a large global footprint in terms of plastic pollution. There is a similar trend in Colgate-Palmolive and Unilever, with those companies having a very dispersed level of plastic pollution in different countries.
+
+Overall, from the Sankey diagram and the heat map, it seems that a majority of the plastic pollution in the world is concentrated in two countries, and there are two companies heavily responsible for that pollution. But the greater trend from these diagrams is that large companies tend to have a more spread out impact on plastic pollution, rather than one centered in a specific country.
 
 ### RQ #2
 
@@ -425,7 +437,83 @@ plastics_top |>
 ```
 
 ```{r}
-plastics_top |>
+quantile_data <- plastics_top |>
+  distinct(country, year, grand_total, gdp_per_capita_nominal) |>
+  mutate(
+    gdp_quantile = case_when(
+      gdp_per_capita_nominal <= quantile(gdp_per_capita_nominal, 
+                                         0.33, 
+                                         na.rm = TRUE) ~ "Low GDP",
+      gdp_per_capita_nominal <= quantile(gdp_per_capita_nominal, 
+                                         0.66, 
+                                         na.rm = TRUE) ~ "Mid GDP",
+      TRUE ~ "High GDP"
+    ),
+    gdp_quantile = factor(gdp_quantile,
+                          levels = c("Low GDP", "Mid GDP", "High GDP"))
+  )
+
+
+```
+
+```{r}
+#| fig-alt: "Dumbbell plot comparing GDP per capita rank and plastic waste rank across countries. Blue points represent GDP per capita rank, orange points represent plastic waste rank, and gray lines show the gap between them."
+
+rq2_dumbbell <- plastics_top %>%
+  filter(!is.na(gdp_per_capita_nominal), !is.na(grand_total)) %>%
+  group_by(country) %>%
+  summarize(
+    total_plastic = sum(grand_total, na.rm = TRUE),
+    avg_gdp_per_capita = mean(gdp_per_capita_nominal, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    gdp_rank = min_rank(desc(avg_gdp_per_capita)),
+    plastic_rank = min_rank(desc(total_plastic)),
+    rank_gap = abs(gdp_rank - plastic_rank)
+  ) %>%
+  arrange(desc(rank_gap)) %>%
+  slice_head(n = 12) %>%
+  mutate(country = fct_reorder(country, rank_gap))
+
+ggplot(rq2_dumbbell) +
+  geom_segment(
+    aes(
+      y = country, yend = country,
+      x = gdp_rank, xend = plastic_rank
+    ),
+    color = "gray60",
+    linewidth = 1.3
+  ) +
+  geom_point(
+    aes(x = gdp_rank, y = country, color = "GDP per Capita Rank"),
+    size = 3
+  ) +
+  geom_point(
+    aes(x = plastic_rank, y = country, color = "Plastic Waste Rank"),
+    size = 3
+  ) +
+  scale_color_manual(
+    name = "Legend",
+    values = c(
+      "GDP per Capita Rank" = "steelblue",
+      "Plastic Waste Rank" = "darkorange"
+    )
+  ) +
+  labs(
+    title = "GDP per Capita Rank vs Plastic Waste Rank by Country",
+    subtitle = "Gray lines show the gap between GDP per capita rank (blue) and plastic waste rank (orange)",
+    x = "Rank (1 = highest)",
+    y = "Country"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+```{r}
+#| fig-alt: "A scatterplot of total plastic waste vs nominal GDP colored by income group. Lower middle income countries like Nigeria and the Philippines produce the most plastic waste despite low GDPs, while high income countries show moderate waste levels despite higher GDPs, suggesting no clear positive relationship between GDP and plastic waste."
+#| warning: false
+
+full_summary <- plastics_top |>
   distinct(country) |>
   filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
   mutate(
@@ -434,115 +522,47 @@ plastics_top |>
   ) |>
   unnest(result) |>
   mutate(gdp_category = case_when(
+    is.na(avg_gdp_per_capita_nominal) ~ "Unknown",
     avg_gdp_per_capita_nominal < 5000  ~ "Low Income",
     avg_gdp_per_capita_nominal < 20000 ~ "Middle Income",
     avg_gdp_per_capita_nominal >= 20000 ~ "High Income"
-  )) |>
-  slice_max(plastic_total, n = 10) |>
-  select(country, gdp_category) |>
-  gt() |>
-  tab_header(
-    title = "Top Countries by GDP Classification"
-  ) |>
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_title()
-  ) |>
-  cols_label(
-    country = "Country",
-    gdp_category = "GDP Category"
-  ) |>
-  tab_caption("Table 4: Classifying the Top Countries in Plastic Waste by GDP") 
-```
+  )) 
 
-### Additional Data Summaries/Visualizations
-
-**New Plot:** GDP vs. Total Plastic Waste by Country
-
-```{r}
-top10_codes <- top_plastic_countries[1:10]
-
-country_plot <- plastics_top |>
-  filter(country_code %in% top_plastic_countries) |>
-  group_by(country, country_code) |>
-  summarize(
-    total_plastic = sum(grand_total, na.rm = TRUE),
-    gdp = mean(gdp_nominal, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-ggplot(country_plot, aes(x = gdp, y = total_plastic)) +
-  geom_point(size = 3) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_text(aes(label = country_code), vjust = -0.5, size = 3) +
-  labs(
-    title = "Relationship Between GDP and Total Plastics (Top 10 Countries)",
-    x = "GDP (billions USD)",
-    y = "Total Plastics"
-  ) +
-  theme_minimal()
-
-```
-
-## Project Checkpoint #4
-
-**Improved Plot**
-
-```{r}
-#| fig-alt: "Scatterplot of total plastic waste versus renewable energy consumption by country, with most countries clustered at low waste levels and a few high-waste outliers such as Nigeria. The plot shows no strong relationship between the variables."
-
-renewable_summary <- renewable_summary |>
-  mutate(
-    group = case_when(
-      country_code %in% c("NGA", "CHE", "PHL") ~ country_code,
-      total_waste < 40000 & renewable_pct < 40 ~ "Low waste / Low renewable",
-      total_waste < 40000 & renewable_pct >= 40 ~ "Low waste / High renewable",
-      TRUE ~ "Other"
-    ), 
-    group = factor(group, 
-      levels = c("Low waste / Low renewable",
-                 "Low waste / High renewable",
-                 "NGA",
-                 "PHL",
-                 "CHE")
-    )
-  )
-
-ggplot(renewable_summary, aes(x = total_waste, y = renewable_pct, color = group)) +
-  geom_point(size = 2) +
-  geom_text_repel(
-    aes(label = country_code),
-    size = 2
+full_summary |>
+  filter(country != "China") |>
+  ggplot(aes(x = avg_gdp_per_capita_nominal, y = plastic_total, color = gdp_category)) +
+    geom_point(size = 1.5) +
+    geom_text_repel(
+      aes(label = country),
+      size = 2
   ) +
   labs(
-    title = "Plastic Waste vs Renewable Energy by Country",
-    subtitle = "Top 50 Countries by Total Plastic Waste",
-    x = "Total Plastic Waste",
-    y = "Renewable Energy (% of total energy consumption)",
-    color = "Group"
+    title    = "Total Plastic Waste vs GDP by Country",
+    subtitle = "Colored by GDP Category",
+    x        = "Avg GDP Per Capita(Nominal, USD)",
+    y        = "Total Plastic Waste",
+    color    = "GDP Category"
   ) +
   scale_color_manual(values = c(
-  "Low waste / Low renewable" = "#1f77b4",  
-  "Low waste / High renewable" = "#2ca02c", 
-  "Other" = "gray70",
-  "NGA" = "#e41a1c", 
-  "CHE" = "#ff7f00",  
-  "PHL" = "#000000"    
-)) +
+    "Low Income"          = "#e41a1c",
+    "Middle Income" = "#BF00FF",
+    "High Income"         = "#1f77b4"
+  )) +
   theme_classic() +
   theme(
-    plot.title = element_text(face = "bold", size = 16),
+    plot.title    = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 12),
-    plot.margin = margin(15, 15, 15, 15))
+    plot.margin   = margin(15, 15, 15, 15)
+  )
 ```
 
 A simple linear regression model was used:
 
 $Y_i$ = $\beta_0$ + $\beta_1 X_i$ + $\varepsilon_i$
 
-$Y_i$ = renewable energy percentage for country $i$
+$Y_i$ = total plastic waste for country $i$
 
-$X_i$ = total plastic waste for country $i$
+$X_i$ = GDP (nominal) for country $i$
 
 $\beta_0$ = intercept
 
@@ -551,25 +571,25 @@ $\beta_1$ = slope parameter
 $\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
 
 ```{r}
-## Used the broom package to better format our summary https://broom.tidymodels.org/
-model <- lm(renewable_pct ~ total_waste, data = renewable_summary)
+model_gdp <- lm(plastic_total ~ avg_gdp_per_capita_nominal, data = full_summary)
 
-tidy(model) |>
+tidy(model_gdp) |>
   gt() |>
   tab_header(
     title    = "Linear Regression Results",
-    subtitle = "Response: Renewable Energy Percentage | Predictor: Total Waste"
+    subtitle = "Response: Total Plastic Waste | Predictor: GDP Per Capita (Nominal)"
   ) |>
-  tab_style(style = cell_text(weight = "bold"),
-    locations = list(cells_column_labels(), 
-                     cells_title())) |>
-  tab_caption("Table 1: Effect of Total Waste on Renewable Energy Percentage") |>
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = list(cells_column_labels(),
+                     cells_title())
+  ) |>
   cols_label(
     term      = "Term",
     estimate  = "Estimate",
     std.error = "Std. Error",
-    statistic = "t-Statistic",
-    p.value   = "p-Value"
+    statistic = "t-stat",
+    p.value   = "p-value"
   ) |>
   fmt_number(
     columns  = c(estimate, std.error, statistic),
@@ -578,8 +598,13 @@ tidy(model) |>
   fmt_number(
     columns  = p.value,
     decimals = 4
-  ) 
-
+  )
 ```
 
-A simple linear regression model was conducted to explore the relationship between total plastic waste and renewable energy percentage among the top 10 countries. The estimated slope was 0.0002, showing a slight positive relationship. However, this relationship was not statistically significant from the p value of 0.0905, leading to the conclusion that there is insufficient evidence to conclude that total plastic waste is associated with renewable energy use in these countries.
+**Analysis:** From the summary tables that were constructed, it would appear that countries with higher levels of plastic pollution tend to be of a lower income level in terms of GDP per capita. However, upon further inspection, this is refuted.
+
+The dumbbell plot compares each country’s rank in GDP per capita (blue) with its rank in total plastic waste (orange), with gray lines showing the gap between the two. If higher GDP per capita led to more plastic waste, the points would be close together, but many countries show large differences. For example, Nigeria has a much higher plastic waste rank than its GDP per capita rank, while countries like the United States and Ecuador show the opposite pattern, with higher GDP per capita rankings but lower plastic waste rankings. Although some countries such as Switzerland and Indonesia show more alignment, the overall pattern is inconsistent. This indicates that countries with higher GDP per capita do not consistently produce more plastic waste, suggesting that other factors such as population size, infrastructure, and waste management systems play a more important role in plastic waste production.
+
+Additionally, the scatter plot challenges the assumption that countries with a lower income tend to produce more plastic waste. From the plot, Nigeria and the Philippines are responsible for the highest total plastic waste despite having GDP's per capita near zero, but they are the only points in that area, suggesting them to be potential outliers. There does not seem to be a relationship present for wealthier countries either, as countries like the United States and Germany which have significantly higher GDP's per capita, produce relatively moderate amounts of plastic waste.
+
+Finally, from the simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, it is apparent that there is no corrleation present between these two varaibles. The estimated slope was -0.0747 indicating a very slight negative relationship. This means that countries with higher GDP per capita tend to produce marginally less plastic waste in this sample. However, the relationship is not statistically significant (p-value = 0.7095). There is no significant evidence for an association between GDP per capita and total plastic waste. The scatter plot suggests that plastic waste is not simply correlated with GDP per capita.
