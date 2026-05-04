@@ -13,7 +13,7 @@ theme: cosmo
 
 **Plastic Data**
 
-The plastic pollution data was gathered from a publication on Github, that sourced the data from the organization, Break Free From Plastic. Break Free From Plastic is an organization that produces audits on the efforts to clean up plastic pollution within different countries throughout the world. The data set on Github contains data from the 2019 and 2020 audits.
+This data was gathered from a publication on Github, that sourced the data from the organization, Break Free From Plastic. Break Free From Plastic is an organization that produces audits on the efforts to clean up plastic pollution within different countries throughout the world. The data set on Github contains data from the 2019 and 2020 audits.
 
 The plastic data is collected with each count of a specific type of plastic, originating from a combination of a specific country and company. This corresponds to a single observational unit in the data. Counts of these plastics are tallied up to create an aggregate of over 50 countries in the data set. The plastics specifically are classified by recycling codes.
 
@@ -33,13 +33,13 @@ Key information collected:
 
 **GDP Data**
 
-The GDP data was extracted from API Ninjas' "GDP" API endpoint. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
+This was extracted from API Ninjas' "GDP" API endpoint. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
 
-The GDP data is collected with each country being treated as an observational unit. This data follows the nature of a time series, with data being collected back almost 40 to 50 years in the past for each observational unit.
+Data was collected with each country being treated as an observational unit. This data follows the nature of a time series, with data being collected back almost 40 to 50 years in the past for each observational unit.
 
 API Ninjas does not offer much transparency in their methods of data collection, only that they gather what is already collected from different sources and compile it together into their API endpoints. Additionally, they do not provide any information on why this data was gathered, only that they aim to provide GDP specific data for comparing one country to another.
 
-During the extraction of the data, the scope was limited to only the years of 2019 and 2020, in accordance with the years that are available from the plastic pollution data.
+During the extraction of the data, the scope was limited to only the years of 2019 and 2020, in accordance with the years that are available from this data.
 
 Key information collected:
 
@@ -373,7 +373,7 @@ heatmap_data |>
 
 **Analysis:** The summary tables show that the companies with the highest amount of plastic waste are the Coca Cola Company, followed by La Doo, with the rest of the top 10 highest polluting companies being relatively close to each other. Looking at the countries that have the most plastic waste, Nigeria and the Philippines stand out, with both countries being the only ones in the six figure range of plastic waste from Break Free From Plastic's audits in 2019 and 2020.
 
-The Sankey diagram shows the relationship between these countries and the companies responsible for the plastic waste. Nigeria is extremely connected with La Doo, while the Philippines is connected with the Universal Robina Corporation. It must be kept in mind that La Doo only has plastic pollution from Nigeria, so this could be a labelling error in the original data set, or a company specifically based in Nigeria. Both of these relationships show up on the heat map, where we can see both Nigeria and the Philippines contain dense amounts of plastic from these corporations.
+The Sankey diagram shows the relationship between these countries and the companies responsible for the plastic waste. Nigeria is extremely connected with La Doo, while the Philippines is connected with the Universal Robina Corporation. It must be kept in mind that La Doo only has plastic pollution from Nigeria, so this could be a labeling error in the original data set, or a company specifically based in Nigeria. Both of these relationships show up on the heat map, where we can see both Nigeria and the Philippines contain dense amounts of plastic from these corporations.
 
 Something interesting from the heat map and the Sankey diagram is that Coca Cola, which has the highest amount of plastic waste out of all the companies, does not have plastic waste centered in one specific country, but rather its very dispersed among many countries, indicating a large global footprint in terms of plastic pollution. There is a similar trend in Colgate-Palmolive and Unilever, with those companies having a very dispersed level of plastic pollution in different countries.
 
