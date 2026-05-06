@@ -10,6 +10,8 @@ code-fold: true
 theme: cosmo
 ---
 
+## Why is this important?
+
 Plastic waste pollution has been a problem that has plagued the world for some time, with the magnitude of the problem continuing to grow over the years as efforts to keep waste levels in check have mostly been minimal at best. The amount of waste continues to be a looming threat to the health of many different ecosystems, and this will only continue to get worse for future generations. To better understand this problem, we must better examine the sources of where all this pollution comes from, and understand what exactly rising levels of plastic waste are correlated with. By doing so, we can leverage these relationships to better address the problem of rising levels of waste, and provide a more stable setup for cleanup efforts into the future.
 
 The main item that motivated this data exploration was the relationship of plastic waste with different countries across the globe. Different parts of the globe are subject to different situations, so evidently their relationship with the problem of plastic waste would be different. Two questions came up that appeared to warrant a deeper investigation.
@@ -18,7 +20,7 @@ The first question was in regards to the relationship between a country and a co
 
 The second question was more specifically directed towards the countries around the globe. Different countries reside in different levels of economic status, some are richer than others and have a larger footprint in the global economy. Do these richer countries tend to contribute more to plastic waste levels due to their larger economic footprint? Or is the majority of plastic waste concentrated within areas of the world that are considered to be developing regions? One would assume that a country that has a large production output, would also have a large waste output too, and the idea of figuring out if this was true or not was one that motivated this data exploration.
 
-## Understanding the Data Sets at Hand
+## Understanding the data sets at hand
 
 There were two data sets that were chosen to carry out this investigation.
 
@@ -56,11 +58,11 @@ The key information that was present in this data set was:
 
 - Year of observation (2019 or 2020)
 
-- GDP value (nominal) in US dollars
+- GDP value per capita (nominal) in US dollars
 
 - GDP growth rate as a percentage
 
-## Section 2: Reading in the External Data
+With these data sets present, the data exploration began by starting off with looking at the relationship between a country and a corporation in regards to plastic waste, before carrying out a country level analysis on how the GDP per capita of a country corresponded to plastic waste.
 
 ```{r}
 #| output: false
@@ -83,8 +85,6 @@ library(broom)
 ## Read in the plastics data
 plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2021/2021-01-26/plastics.csv')
 ```
-
-1.  Creating custom functions for data analysis later
 
 ```{r}
 ## Custom function to get the total number of plastics for each country
@@ -125,8 +125,6 @@ gdp_plastics <- function(input_country){
 
 ```
 
-2.  Create a function to pull data from the API
-
 ```{r}
 #| eval: false
 get_gdp <- function(country_code, key = my_key) {
@@ -141,8 +139,6 @@ get_gdp <- function(country_code, key = my_key) {
   }
 }
 ```
-
-3.  Obtain a list of the top 50 countries in plastic waste totals
 
 ```{r}
 ## Create a list of the top 10 countries with the highest total plastics
@@ -159,8 +155,6 @@ top_plastic_countries <- plastics |>
   pull(country_code)
 ```
 
-4.  Pull data from the API
-
 ```{r}
 #| eval: false
 Sys.sleep(20)
@@ -169,8 +163,6 @@ gdp_list <- top_plastic_countries |>
   map(get_gdp)
 
 ```
-
-5.  Turn the data into a CSV file
 
 ```{r}
 #| eval: false
@@ -192,8 +184,6 @@ write.csv(gdp_data, "gdp.csv", row.names = FALSE)
 gdp_df <- read.csv("gdp.csv")
 ```
 
-6.  Join the data sets together
-
 ```{r}
 #| warning: false
 plastics_top <- plastics |>
@@ -208,16 +198,7 @@ plastics_top <- plastics |>
   left_join(gdp_df)
 ```
 
-## Section 3: Research Questions
-
-There were two main questions that stood out after an initial at all of these data sets.
-
-1.  What companies and countries have the highest number of total plastics thrown out over these two years? And what is the relationship between these countries and the companies responsible for this plastic waste?
-2.  Do countries with a higher GDP per capita tend to contribute more to plastic waste? Or is the majority of plastic waste concentrated in mainly developing parts of the world?
-
-## Section 4: Summaries and Visualizations
-
-### RQ #1
+## Looking at the top companies and countries
 
 ```{r}
 company_summary <- plastics |>
@@ -261,6 +242,8 @@ company_summary |>
 
 ```
 
+The Coca-Cola Company leads the counts of plastic waste by a comfortable margin, having over 10,000 more items of plastic waste compared to the company La Doo, which has a clear grip on second place. After those two companies, the amount of plastic waste is very close among these different companies, indicating that perhaps the top two companies could be outliers in comparison to the other corporations.
+
 ```{r}
 ## Uses iteration and a custom function
 plastics |>
@@ -268,7 +251,8 @@ plastics |>
   filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
   mutate(
     plastic_total = map_int(country, total_plastics),
-    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
+    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador"),
+    share_of_total = plastic_total / sum(plastic_total, na.rm = TRUE)
     ) |>
   slice_max(plastic_total, n = 10) |>
   gt() |>
@@ -281,7 +265,8 @@ plastics |>
   ) |>
   cols_label(
     country = "Country",
-    plastic_total = "Total Waste"
+    plastic_total = "Total Waste",
+    share_of_total = "Share of Total"
   ) |>
   tab_caption("Table 2: Amount of Plastic Waste From Each Country") |>
   tab_footnote(
@@ -291,9 +276,21 @@ plastics |>
     )
   ) |>
   fmt_number(columns = plastic_total,
-             decimals = 0)
+             decimals = 0) |>
+  fmt_percent(
+    columns = share_of_total,
+    decimals = 3
+  ) |>
+  tab_spanner(
+    label = "Plastic Counts",
+    columns = c(plastic_total, share_of_total)
+  )
 
 ```
+
+The top country in terms of plastic waste is Nigeria, followed by the Philippines. In a similar trend to what was apparent from Table 1, the top two in this table seem to be outliers in comparison to the rest of the world, as they are the only countries with plastic waste counts above 100,000. The rest of the world seems to be more closely clustered with each other in terms of amount of plastic waste.
+
+## Which companies and countries have the most waste?
 
 ```{r}
 #| fig-alt: "Sankey diagram showing how plastic waste flows between countries and companies. The diagram is stratified by the type of plastic. The Philippines and Nigeria have the highest amount of waste flowing into a variety of different companies. The most common type of plastic waste is PET."
@@ -351,6 +348,10 @@ plastics_long |>
   labs(fill = "Plastic Type")
 ```
 
+The Sankey diagram above shows the relationship between a country and a company. The countries were limited to the top 5 countries in plastic waste so that the plot could be more easily viewed, while the number of companies is limited to the top 10. From the plot, it is clear that Nigeria is closely tied to La Doo, while the Philippines is more spread out in terms of which corporations contribute to its plastic waste. Additionally, while Coca Cola had the greatest overall total of plastic waste out of all of the companies, within the top 5 countries in plastic waste, it ranks a bit lower, which indicates that the plastic waste that it is responsible for is spread out over a much larger set of countries, rather than just being concentrated in one.
+
+## Plastic waste seems to be spread out
+
 ```{r}
 #| fig-alt: "Heatmap showing where the most dense concentration of plastic waste lies between combinations of country and parent company. From the plot, the densest concentration of plastic waste lies in the company of La Doo and Nigeria. Additionally, the Coca-Cola Company has its plastic waste spread out across most of the top 5 countries in plastic waste, with the most waste being in the Philippines."
 
@@ -372,21 +373,18 @@ heatmap_data |>
                           "NIGERIA" = "Nigeria")) |>
   ggplot(aes(x = country, y = parent_company, fill = plastic_total)) +
   geom_tile() +
-  labs(title = "Country vs. Company Contribution to Plastic Waste",
+  labs(title = "Density of Plastic Waste Between Countries and Companies",
        x = "Country",
        y = "Parent Company",
        fill = "Total Plastic") +
   theme_bw() +
-  scale_fill_viridis_c() 
+  scale_fill_viridis_c() + 
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-**Analysis:** The summary tables show that the companies with the highest amount of plastic waste are the Coca Cola Company, followed by La Doo, with the rest of the top 10 highest polluting companies being relatively close to each other. Looking at the countries that have the most plastic waste, Nigeria and the Philippines stand out, with both countries being the only ones in the six figure range of plastic waste from Break Free From Plastic's audits in 2019 and 2020.
+The heat map above complements the findings from the Sankey diagram, as it shows again how Nigeria is very closely tied with the company of La Doo, while showing the rest of the corporations do not hold any such relationship with any other countries. The only country that seems to have a close relationship with a corporation, like Nigeria does with La Doo, is the Philippines with the Universal Robina Corporation. But even with that relationship, the Philippines plastic waste is influenced by a variety of different countries, not just one main one.
 
-The Sankey diagram shows the relationship between these countries and the companies responsible for the plastic waste. Nigeria is extremely connected with La Doo, while the Philippines is connected with the Universal Robina Corporation. It must be kept in mind that La Doo only has plastic pollution from Nigeria, so this could be a labeling error in the original data set, or a company specifically based in Nigeria. Both of these relationships show up on the heat map, where we can see both Nigeria and the Philippines contain dense amounts of plastic from these corporations.
-
-Something interesting from the heat map and the Sankey diagram is that Coca Cola, which has the highest amount of plastic waste out of all the companies, does not have plastic waste centered in one specific country, but rather its very dispersed among many countries, indicating a large global footprint in terms of plastic pollution. There is a similar trend in Colgate-Palmolive and Unilever, with those companies having a very dispersed level of plastic pollution in different countries.
-
-Overall, from the Sankey diagram and the heat map, it seems that a majority of the plastic pollution in the world is concentrated in two countries, and there are two companies heavily responsible for that pollution. But the greater trend from these diagrams is that large companies tend to have a more spread out impact on plastic pollution, rather than one centered in a specific country.
+From both diagrams, it would appear that there does not appear to be any close relationships between countries and companies when it comes to the amount of plastic waste that is attributed to each of them. The top companies in regards to amount of plastic waste in the world get to that status by spreading the wealth between a variety of different countries, rather than having a close relationship with one. This would indicate that the corporations most responsible for large amounts of plastic waste have a global footprint, rather than a local one.
 
 ### RQ #2
 
