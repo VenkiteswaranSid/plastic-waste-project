@@ -198,7 +198,7 @@ plastics_top <- plastics |>
   left_join(gdp_df)
 ```
 
-## Looking at the top companies and countries
+## Coca Cola is responsible for a large amount of waste
 
 ```{r}
 company_summary <- plastics |>
@@ -243,6 +243,8 @@ company_summary |>
 ```
 
 The Coca-Cola Company leads the counts of plastic waste by a comfortable margin, having over 10,000 more items of plastic waste compared to the company La Doo, which has a clear grip on second place. After those two companies, the amount of plastic waste is very close among these different companies, indicating that perhaps the top two companies could be outliers in comparison to the other corporations.
+
+## Two countries carry large amounts of plastic pollution
 
 ```{r}
 ## Uses iteration and a custom function
