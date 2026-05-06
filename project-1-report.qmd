@@ -20,17 +20,21 @@ The second question was more specifically directed towards the countries around 
 
 ## Understanding the Data Sets at Hand
 
-**Plastic Data**
+There were two data sets that were chosen to carry out this investigation.
 
-This data was gathered from a publication on Github, that sourced the data from the organization, Break Free From Plastic. Break Free From Plastic is an organization that produces audits on the efforts to clean up plastic pollution within different countries throughout the world. The data set on Github contains data from the 2019 and 2020 audits.
+The first data set comes from a publication on Github, which sourced data from the organization, Break Free From Plastic. Break Free From Plastic is an organization that produces audits on the efforts to clean up plastic pollution within different countries throughout the world. The data set on Github contains data from the 2019 and 2020 audits. With data on different countries around the world in regards to plastic waste, this appeared to be a data set that was relevant to the questions that motivated this exploration.
 
-The plastic data is collected with each count of a specific type of plastic, originating from a combination of a specific country and company. This corresponds to a single observational unit in the data. Counts of these plastics are tallied up to create an aggregate of over 50 countries in the data set. The plastics specifically are classified by recycling codes.
+The plastic data was collected with each count of a specific type of plastic, originating from a combination of a specific country and company. This corresponded to a single observational unit in the data. Counts of these plastics were tallied up to create an aggregate of over 50 countries in the data set. The plastics specifically were classified by recycling codes.
 
-The data present here is collected through tallies of clean up efforts across these different countries, per Break Free From Plastic's website. This data was gathered to get information on the sources of plastic pollution, in order to demand a reduction in such waste across the globe, as part of Break Free From Plastic's mission.
+From Break Free From Plastic's website, the data that was present in the Github publication was collected through tallies of clean up efforts across these different countries. This data was gathered to get information on the sources of plastic pollution, in order to demand a reduction in such waste across the globe, as part of Break Free From Plastic's mission.
 
-From an initial look at what cleaning has been done to the data, it is clear that from the cleaning script, the columns have been set to have values of either values of characters or doubles. This applies for both 2019 and 2020. Furthermore, for 2019, there has been an str_replace operation conducted to better set the names from the file which it was collected from. Additionally, there has been a mutate operation conducted to create new variables of pp and ps, with if else statements to handle NA values within the variable pp_2.
+The Github publication also contained a cleaning script on what was done to the data before it was published. From the script, the main cleaning operations that were done were:
 
-Key information collected:
+1.  Setting the columns to have values of either characters or doubles for both 2019 and 2020
+2.  Conducting a str_replace operation to better set the names from the file which it was collected from
+3.  Conducting a mutate operation to create new variables of pp and ps, with if else statements to handle NA values within the variable pp_2
+
+Overall the main variables from this data set were:
 
 - Country of which the plastic was collected in
 
@@ -40,17 +44,13 @@ Key information collected:
 
 - Grand total of plastics from a country and company combination
 
-**GDP Data**
-
-This was extracted from API Ninjas' "GDP" API endpoint. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
+The second data set was a GDP data set in regards to specific countries, that was published by the website API Ninjas. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
 
 Data was collected with each country being treated as an observational unit. This data follows the nature of a time series, with data being collected back almost 40 to 50 years in the past for each observational unit.
 
-API Ninjas does not offer much transparency in their methods of data collection, only that they gather what is already collected from different sources and compile it together into their API endpoints. Additionally, they do not provide any information on why this data was gathered, only that they aim to provide GDP specific data for comparing one country to another.
+API Ninjas does not offer much transparency in their methods of data collection, only that they gather what is already collected from different sources and compile it together into their API endpoints. Additionally, from the website, there was no information provided on why this data was gathered, only that the data was collected with the aim of comparing GDP data from one country with others.
 
-During the extraction of the data, the scope was limited to only the years of 2019 and 2020, in accordance with the years that are available from this data.
-
-Key information collected:
+The key information that was present in this data set was:
 
 - ISO3 country code
 
