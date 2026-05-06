@@ -12,6 +12,12 @@ theme: cosmo
 
 Plastic waste pollution has been a problem that has plagued the world for some time, with the magnitude of the problem continuing to grow over the years as efforts to keep waste levels in check have mostly been minimal at best. The amount of waste continues to be a looming threat to the health of many different ecosystems, and this will only continue to get worse for future generations. To better understand this problem, we must better examine the sources of where all this pollution comes from, and understand what exactly rising levels of plastic waste are correlated with. By doing so, we can leverage these relationships to better address the problem of rising levels of waste, and provide a more stable setup for cleanup efforts into the future.
 
+The main item that motivated this data exploration was the relationship of plastic waste with different countries across the globe. Different parts of the globe are subject to different situations, so evidently their relationship with the problem of plastic waste would be different. Two questions came up that appeared to warrant a deeper investigation.
+
+The first question was in regards to the relationship between a country and a corporation when it came to plastic waste. What companies and countries have the highest number of total plastics thrown out over these two years? And were the top countries in plastic waste tied with specific companies that managed to produce products that were responsible for such high levels of pollution?
+
+The second question was more specifically directed towards the countries around the globe. Different countries reside in different levels of economic status, some are richer than others and have a larger footprint in the global economy. Do these richer countries tend to contribute more to plastic waste levels due to their larger economic footprint? Or is the majority of plastic waste concentrated within areas of the world that are considered to be developing regions? One would assume that a country that has a large production output, would also have a large waste output too, and the idea of figuring out if this was true or not was one that motivated this data exploration.
+
 ## Understanding the Data Sets at Hand
 
 **Plastic Data**
