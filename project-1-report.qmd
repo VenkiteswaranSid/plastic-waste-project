@@ -1,5 +1,6 @@
 ---
-title: "Project 1 Report"
+title: "Waste and Pollution in an Era of Excess"
+subtitle: "Where does plastic waste originate from and where is it concentrated in?"
 format: html
 editor: visual
 author: "Siddharth Venkiteswaran"
@@ -9,7 +10,9 @@ code-fold: true
 theme: cosmo
 ---
 
-## Section 1: Describing the Data
+Plastic waste pollution has been a problem that has plagued the world for some time, with the magnitude of the problem continuing to grow over the years as efforts to keep waste levels in check have mostly been minimal at best. The amount of waste continues to be a looming threat to the health of many different ecosystems, and this will only continue to get worse for future generations. To better understand this problem, we must better examine the sources of where all this pollution comes from, and understand what exactly rising levels of plastic waste are correlated with. By doing so, we can leverage these relationships to better address the problem of rising levels of waste, and provide a more stable setup for cleanup efforts into the future.
+
+## Understanding the Data Sets at Hand
 
 **Plastic Data**
 
