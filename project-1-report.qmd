@@ -640,27 +640,27 @@ model_gdp <- lm(plastic_total ~ avg_gdp_per_capita_nominal, data = full_summary)
 tidy(model_gdp) |>
   gt() |>
   tab_header(
-    title    = "Linear Regression Results",
+    title = "Linear Regression Results",
     subtitle = "Response: Total Plastic Waste | Predictor: GDP Per Capita (Nominal)"
   ) |>
   tab_style(
-    style     = cell_text(weight = "bold"),
+    style = cell_text(weight = "bold"),
     locations = list(cells_column_labels(),
                      cells_title())
   ) |>
   cols_label(
-    term      = "Term",
-    estimate  = "Estimate",
+    term = "Term",
+    estimate = "Estimate",
     std.error = "Std. Error",
     statistic = "t-stat",
-    p.value   = "p-value"
+    p.value = "p-value"
   ) |>
   fmt_number(
-    columns  = c(estimate, std.error, statistic),
+    columns = c(estimate, std.error, statistic),
     decimals = 4
   ) |>
   fmt_number(
-    columns  = p.value,
+    columns = p.value,
     decimals = 4
   )
 ```
