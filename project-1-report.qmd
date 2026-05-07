@@ -557,9 +557,12 @@ tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
   fmt_number(columns = total_plastic,
              decimals = 0) |>
   fmt_percent(columns = share_of_total,
-              decimals = 3)
-
-
+              decimals = 3) |>
+  tab_footnote(
+    footnote = "GDP categories were determined by obtaining the 33rd and 67th percentiles, then designating 'Low GDP' as what lay from the bottom to the 33rd percentile, 'Mid GDP' as what lay from the 33rd to the 67th percentile, and 'High GDP' as what lay from the 67th percentile to the top.",
+    locations = cells_column_labels(
+      columns = total_plastic
+    ))
 ```
 
 Table 4 adds more support to the belief that countries with lower GDP per capita have larger amounts of plastic waste. Table 4's groupings of all the countries into different quantiles corresponding with average GDP per capita show that countries with low GDP have way higher amounts of plastic waste compared to mid and high GDP countries. In fact, there is appears to be a negative relationship present, meaning as GDP status increases, the amount of plastic decreases. Caution must be exercised here though, as the low GDP category contains two major outliers in terms of plastic waste total, in Nigeria and the Philippines. These countries could be inflating the total plastic waste and making it seem like there is indeed a negative correlation between GDP level and plastic waste. Further analysis must be conducted to see if there really is a relationship present here.
