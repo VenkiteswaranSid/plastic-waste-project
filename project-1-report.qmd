@@ -1,6 +1,6 @@
 ---
 title: "Waste and Pollution in an Era of Excess"
-subtitle: "Where does plastic waste originate from and where is it concentrated in?"
+subtitle: "What factors are tied to rising plastic waste?"
 format: html
 editor: visual
 author: "Siddharth Venkiteswaran"
@@ -472,7 +472,7 @@ ggplot(rq2_dumbbell) +
   ) +
   labs(
     title = "GDP per Capita Rank vs Plastic Waste Rank by Country",
-    subtitle = "Gray lines show the gap between GDP per capita rank (blue) and plastic waste rank (orange)",
+    subtitle = "Gray lines show the gap between GDP per capita rank (blue)\nand plastic waste rank (orange)",
     x = "Rank (1 = highest)",
     y = "Country"
   ) +
@@ -674,4 +674,8 @@ Though initial analysis of the relationship between these two predictors would i
 
 ## Looking forward
 
-Though this analysis did not come away with any major takeaways, it did indicate the global presence of corporations has a large impact on plastic pollution. Much of the top 10 polluters had their waste spread across a variety of different countries, rather than containing it to one area, making this a more world wide issue that needs addressing. This could come through various works of legislation, with more and more countries opting for regulation rather than freedom for these companies to operate and create more waste that is spread across the globe. Additionally, it was found that economic status of countries does not play a major role in how much pollution is generated, rather it seems that two countries seem to be designated as dumping grounds for plastic waste, while the rest of the globe has comparable levels of waste that they struggle with. Exploring why there is so much waste within the countries of Nigeria and the Philippines would be the next logical step, to see why there is such a large disparity.
+Though this analysis did not come away with any shocking discoveries about factors that influence plastic pollution, it did come away with some interesting findings on what steps to take in a further exploration of this issue.
+
+Primarily, it did indicate the global presence of corporations has a large impact on plastic pollution. Much of the top 10 polluters had their waste spread across a variety of different countries, rather than containing it to one area, making this a more world wide issue that needs addressing. This indicates that current regulation for plastic waste on the country level alone is not good enough to solve this problem. Because of the global spread of these corporations, there must be international agreements to enact such regulation, rather than on the individual country level.
+
+Additionally, the findings of average GDP per capita not having an effect on the amount of plastic waste a country has challenges the idea that the wealth status of a country has anything to do with its output of plastic waste. Thus, blaming developing countries or wealthy countries for the plastic pollution problem is ultimately extremely unproductive. What is interesting, is the extreme outlier behavior of Nigeria and the Philippines as recipients of such large amounts of waste. Why is it that these two countries are owners of such large amounts of waste compared to the rest of the world? These are questions that must be addressed in the future, by conducting a deeper analysis into this issue.
