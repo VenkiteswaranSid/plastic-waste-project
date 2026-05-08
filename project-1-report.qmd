@@ -7,7 +7,7 @@ author: "Siddharth Venkiteswaran"
 embed-resources: true
 warnings: false
 code-fold: true
-theme: cosmo
+theme: spacelab
 ---
 
 ## Why is this important?
@@ -336,7 +336,7 @@ plastics_long |>
                            width = 1/4, 
                            min.size = 3) +
   theme_bw() +
-  scale_fill_paletteer_d("ggthemes::Color_Blind") +
+  scale_fill_paletteer_d("ggthemes::few_Dark") +
   xlab("Countries vs. Companies") +
   ylab("Total Plastic") +
   ggtitle("Plastic Waste from Country to Company",
@@ -466,8 +466,8 @@ ggplot(rq2_dumbbell) +
   scale_color_manual(
     name = "Legend",
     values = c(
-      "GDP per Capita Rank" = "steelblue",
-      "Plastic Waste Rank" = "darkorange"
+      "GDP per Capita Rank" = "#446E9B",
+      "Plastic Waste Rank" = "#CD0200"
     )
   ) +
   labs(
@@ -605,9 +605,9 @@ full_summary |>
   ) +
   scale_color_manual(
   values = c(
-    "Low GDP" = "#e41a1c",
-    "Middle GDP" = "#BF00FF",
-    "High GDP" = "#1f77b4"
+    "Low GDP" = "#CD0200",
+    "Middle GDP" = "#3CB521",
+    "High GDP" = "#446E9B"
   ),
   breaks = c("High GDP", "Middle GDP", "Low GDP")
   ) +
