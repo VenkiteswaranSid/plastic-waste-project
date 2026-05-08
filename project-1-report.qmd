@@ -641,10 +641,13 @@ $\varepsilon_i\sim \text{iid } N(0, \sigma^2)$
 model_gdp <- lm(plastic_total ~ avg_gdp_per_capita_nominal, data = full_summary)
 
 tidy(model_gdp) |>
+  mutate(term = recode(term, 
+    "avg_gdp_per_capita_nominal" = "Avg GDP Per Capita (Nominal)"
+  )) |>
   gt() |>
   tab_header(
     title = "Linear Regression Results",
-    subtitle = "Response: Total Plastic Waste | Predictor: GDP Per Capita (Nominal)"
+    subtitle = "Response: Total Plastic Waste | Predictor: Avg GDP Per Capita (Nominal)"
   ) |>
   tab_style(
     style = cell_text(weight = "bold"),
