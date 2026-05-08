@@ -152,7 +152,7 @@ plastics_top <- plastics |>
 
 # Plastic Waste vs. GDP
 
-##  {.tabset width="50%"}
+##  {.tabset}
 
 ### Country specific statistics 
 
@@ -334,7 +334,7 @@ tidy(model_gdp) |>
 
 With a very large p-value of 0.7095, there is not sufficient evidence to conclude that there is a relationship present between the average GDP per capita, and the amount of plastic waste that a country accumulates. 
 
-##  {.tabset width="50%"}
+##  {.tabset}
 
 ### GDP ranking vs. Plastic waste ranking
 
@@ -377,8 +377,8 @@ ggplot(rq2_dumbbell) +
   scale_color_manual(
     name = "Legend",
     values = c(
-      "GDP per Capita Rank" = "steelblue",
-      "Plastic Waste Rank" = "darkorange"
+      "GDP per Capita Rank" = "#446E9B",
+      "Plastic Waste Rank" = "#CD0200"
     )
   ) +
   labs(
@@ -430,9 +430,9 @@ full_summary |>
   ) +
   scale_color_manual(
   values = c(
-    "Low GDP" = "#e41a1c",
-    "Middle GDP" = "#BF00FF",
-    "High GDP" = "#1f77b4"
+    "Low GDP" = "#CD0200",
+    "Middle GDP" = "#3CB521",
+    "High GDP" = "#446E9B"
   ),
   breaks = c("High GDP", "Middle GDP", "Low GDP")
   ) +
