@@ -342,10 +342,14 @@ plastics_long |>
   ylab("Total Plastic") +
   ggtitle("Plastic Waste from Country to Company",
           "Stratified by Plastic Type") + 
-  labs(fill = "Plastic Type")
+  labs(fill = "Plastic Type",
+       caption = "Figure 1") +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0.45,
+                                    size = 10))
 ```
 
-The Sankey diagram above shows the relationship between a country and a company. The countries were limited to the top 5 countries in plastic waste so that the plot could be more easily viewed, while the number of companies is limited to the top 10. From the plot, it is clear that Nigeria is closely tied to La Doo, while the Philippines is more spread out in terms of which corporations contribute to its plastic waste. Additionally, while Coca Cola had the greatest overall total of plastic waste out of all of the companies, within the top 5 countries in plastic waste, it ranks a bit lower, which indicates that the plastic waste that it is responsible for is spread out over a much larger set of countries, rather than just being concentrated in one.
+Figure 1 above shows the relationship between a country and a company. The countries were limited to the top 5 countries in plastic waste so that the plot could be more easily viewed, while the number of companies is limited to the top 10. From the plot, it is clear that Nigeria is closely tied to La Doo, while the Philippines is more spread out in terms of which corporations contribute to its plastic waste. Additionally, while Coca Cola had the greatest overall total of plastic waste out of all of the companies, within the top 5 countries in plastic waste, it ranks a bit lower, which indicates that the plastic waste that it is responsible for is spread out over a much larger set of countries, rather than just being concentrated in one.
 
 ## Top companies appear to "spread the wealth"
 
@@ -373,13 +377,17 @@ heatmap_data |>
   labs(title = "Density of Plastic Waste Between Countries and Companies",
        x = "Country",
        y = "Parent Company",
-       fill = "Total Plastic") +
+       fill = "Total Plastic",
+       caption = "Figure 2") +
   theme_bw() +
   scale_fill_viridis_c() + 
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0.55,
+                                    size = 10))
 ```
 
-The heat map above complements the findings from the Sankey diagram, as it shows again how Nigeria is very closely tied with the company of La Doo, while showing the rest of the corporations do not hold any such relationship with any other countries. The only country that seems to have a close relationship with a corporation, like Nigeria does with La Doo, is the Philippines with the Universal Robina Corporation. But even with that relationship, the Philippines plastic waste is influenced by a variety of different companies, not just one. This seems to be the case for the rest of the corporations in the top 10, as many seem to hit multiple different areas of the heatmap, rather than just one.
+Figure 2 complements the findings from Figure 1, as it shows again how Nigeria is very closely tied with the company of La Doo, while showing the rest of the corporations do not hold any such relationship with any other countries. The only country that seems to have a close relationship with a corporation, like Nigeria does with La Doo, is the Philippines with the Universal Robina Corporation. But even with that relationship, the Philippines plastic waste is influenced by a variety of different companies, not just one. This seems to be the case for the rest of the corporations in the top 10, as many seem to hit multiple different areas of Figure 2, rather than just one.
 
 From both diagrams, it would appear that there does not appear to be any close relationships between countries and companies when it comes to the amount of plastic waste that is attributed to each of them. The top companies in regards to amount of plastic waste in the world get to that status by spreading the wealth between a variety of different countries, rather than having a close relationship with one. This would indicate that the corporations most responsible for large amounts of plastic waste have a global footprint, rather than a local one.
 
@@ -475,12 +483,16 @@ ggplot(rq2_dumbbell) +
     title = "GDP per Capita Rank vs Plastic Waste Rank by Country",
     subtitle = "Gray lines show the gap between GDP per capita rank (blue)\nand plastic waste rank (orange)",
     x = "Rank (1 = highest)",
-    y = "Country"
+    y = "Country",
+    caption = "Figure 3"
   ) +
-  theme_minimal(base_size = 12)
+  theme_minimal(base_size = 12) +
+  theme(plot.caption.position = "plot",
+        plot.caption = element_text(hjust = 0.45,
+                                    size = 10))
 ```
 
-With a dedicated visual of showing how the rankings compare between a country's GDP and their rank in plastic waste, the dumbbell plot complements the initial findings of Table 3, showing that the countries that are ranked in the top 10 of plastic waste are also ranked near the bottom 30 in terms of average GDP per capita, with only the United States and Switzerland breaking with the trend and having a higher average GDP per capita rank compared to their plastic waste rank. However, more exploration needs to be done to see exactly how the numbers stack up between countries with different GDP levels and their plastic waste.
+With a dedicated visual of showing how the rankings compare between a country's GDP and their rank in plastic waste, Figure 3 complements the initial findings of Table 3, showing that the countries that are ranked in the top 10 of plastic waste are also ranked near the bottom 30 in terms of average GDP per capita, with only the United States and Switzerland breaking with the trend and having a higher average GDP per capita rank compared to their plastic waste rank. However, more exploration needs to be done to see exactly how the numbers stack up between countries with different GDP levels and their plastic waste.
 
 ## Countries with low GDP per capita have more waste
 
@@ -602,7 +614,8 @@ full_summary |>
     subtitle = "Colored by GDP Category",
     x = "Avg GDP Per Capita(Nominal, USD)",
     y = "Total Plastic Waste",
-    color = "GDP Category"
+    color = "GDP Category",
+    caption = "Figure 4"
   ) +
   scale_color_manual(
   values = c(
@@ -616,11 +629,14 @@ full_summary |>
   theme(
     plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 12),
-    plot.margin = margin(15, 15, 15, 15)
+    plot.margin = margin(15, 15, 15, 15),
+    plot.caption.position = "plot",
+    plot.caption = element_text(hjust = 0.45,
+                                size = 10)
   )
 ```
 
-The scatter plot manages to refute the assumption that there is a negative relationship present between the average GDP per capita of a country and the plastic waste of that country. From the plot, there is no clear negative relationship present here, but the presence of the outliers explains why Table 4 was indicating the presence of one. It is clear that Nigeria and the Philippines tower over all other countries, inflating the amount of plastic waste for low GDP countries. When those two are disregarded from the analysis, most of the points on the plot are concentrated in the same area for plastic waste, regardless of average GDP per capita.
+Figure 4 manages to refute the assumption that there is a negative relationship present between the average GDP per capita of a country and the plastic waste of that country. From the plot, there is no clear negative relationship present here, but the presence of the outliers explains why Table 4 was indicating the presence of one. It is clear that Nigeria and the Philippines tower over all other countries, inflating the amount of plastic waste for low GDP countries. When those two are disregarded from the analysis, most of the points on the plot are concentrated in the same area for plastic waste, regardless of average GDP per capita.
 
 ## Conducting a statistical analysis
 
@@ -650,6 +666,7 @@ tidy(model_gdp) |>
     title = "Linear Regression Results",
     subtitle = "Response: Total Plastic Waste | Predictor: Avg GDP Per Capita (Nominal)"
   ) |>
+  tab_caption("Table 5: Regression Model") |>
   tab_style(
     style = cell_text(weight = "bold"),
     locations = list(cells_column_labels(),
@@ -672,7 +689,7 @@ tidy(model_gdp) |>
   )
 ```
 
-The simple regression linear model, which examines the relationship between GDP per capita and total plastic waste across countries, corroborates the findings of the scatter plot. It is apparent that there is no correlation present between these two variables, as the estimated slope is -0.0747, barely indicating a very slight negative relationship. Additionally, the p-value is 0.7095, which extremely high. This indicates that there is no significant evidence for an association between average GDP per capita and total plastic waste.
+Table 5, which displays simple regression linear model, examines the relationship between GDP per capita and total plastic waste across countries. This corroborates the findings of Figure 4, as it is apparent that there is no correlation present between these two variables. The estimated slope is -0.0747, barely indicating a very slight negative relationship, and the p-value is 0.7095, which extremely high. This indicates that there is no significant evidence for an association between average GDP per capita and total plastic waste.
 
 Though initial analysis of the relationship between these two predictors would indicate that there was a negative relationship present, in reality there isn't any apparent trend. Much of what was assumed to be a significant trend came as a result of two outliers skewing the data and the conclusions that could have been made from a surface level analysis between the two variables.
 
