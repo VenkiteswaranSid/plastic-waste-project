@@ -7,6 +7,7 @@ author: "Siddharth Venkiteswaran"
 embed-resources: true
 warnings: false
 code-fold: true
+toc: true
 theme: spacelab
 ---
 
@@ -346,7 +347,7 @@ plastics_long |>
 
 The Sankey diagram above shows the relationship between a country and a company. The countries were limited to the top 5 countries in plastic waste so that the plot could be more easily viewed, while the number of companies is limited to the top 10. From the plot, it is clear that Nigeria is closely tied to La Doo, while the Philippines is more spread out in terms of which corporations contribute to its plastic waste. Additionally, while Coca Cola had the greatest overall total of plastic waste out of all of the companies, within the top 5 countries in plastic waste, it ranks a bit lower, which indicates that the plastic waste that it is responsible for is spread out over a much larger set of countries, rather than just being concentrated in one.
 
-## Plastic waste seems to be spread out
+## Top companies appear to "spread the wealth"
 
 ```{r}
 #| fig-alt: "Heatmap showing where the most dense concentration of plastic waste lies between combinations of country and parent company. From the plot, the densest concentration of plastic waste lies in the company of La Doo and Nigeria. Additionally, the Coca-Cola Company has its plastic waste spread out across most of the top 5 countries in plastic waste, with the most waste being in the Philippines."
@@ -378,7 +379,7 @@ heatmap_data |>
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-The heat map above complements the findings from the Sankey diagram, as it shows again how Nigeria is very closely tied with the company of La Doo, while showing the rest of the corporations do not hold any such relationship with any other countries. The only country that seems to have a close relationship with a corporation, like Nigeria does with La Doo, is the Philippines with the Universal Robina Corporation. But even with that relationship, the Philippines plastic waste is influenced by a variety of different countries, not just one main one.
+The heat map above complements the findings from the Sankey diagram, as it shows again how Nigeria is very closely tied with the company of La Doo, while showing the rest of the corporations do not hold any such relationship with any other countries. The only country that seems to have a close relationship with a corporation, like Nigeria does with La Doo, is the Philippines with the Universal Robina Corporation. But even with that relationship, the Philippines plastic waste is influenced by a variety of different companies, not just one. This seems to be the case for the rest of the corporations in the top 10, as many seem to hit multiple different areas of the heatmap, rather than just one.
 
 From both diagrams, it would appear that there does not appear to be any close relationships between countries and companies when it comes to the amount of plastic waste that is attributed to each of them. The top companies in regards to amount of plastic waste in the world get to that status by spreading the wealth between a variety of different countries, rather than having a close relationship with one. This would indicate that the corporations most responsible for large amounts of plastic waste have a global footprint, rather than a local one.
 
