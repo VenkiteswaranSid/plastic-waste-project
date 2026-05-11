@@ -403,7 +403,8 @@ leaflet(map_data,
         width = "100%", 
         height = 600,
         options = leafletOptions(minZoom = 2)) %>%
-  addProviderTiles("CartoDB.Positron") %>%
+  addProviderTiles("CartoDB.Positron",
+                   options = providerTileOptions(noWrap = TRUE)) %>%
   addPolygons(
     fillColor = ~pal(total_plastic),
     fillOpacity = 0.75,
