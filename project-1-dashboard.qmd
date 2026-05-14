@@ -149,7 +149,8 @@ plastics_top <- plastics |>
   filter(!country %in% c("EMPTY", 
                          "Nigeria", 
                          "Taiwan_ Republic of China (ROC)", 
-                         "United Kingdom")) |>
+                         "United Kingdom",
+                         "Montenegro")) |>
   mutate(
     country_code = countrycode(country, origin = "country.name", destination = "iso3c"),
     country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
