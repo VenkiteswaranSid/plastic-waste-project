@@ -239,9 +239,9 @@ Many of the countries with high plastic waste appear to have lower average GDP p
 
 ### Plastic waste by GDP category
 
-::: card
 ```{r}
-## Modify the plastics data to get 3 quantiles and classifications
+#| context: setup
+
 quantile_data <- plastics_top |>
   distinct(country, year, grand_total, gdp_per_capita_nominal) |>
   mutate(
@@ -278,52 +278,73 @@ quantile_gdp <- function(input_quantile) {
   
   mean(avg_gdp_by_country, na.rm = TRUE)
 }
-
-## Iterate and modify the table
-tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
-  mutate(
-    total_plastic = map_int(gdp_quantile, quantile_plastic),
-    avg_gdp_per_capita_nominal = map_dbl(gdp_quantile, quantile_gdp),
-    share_of_total  = total_plastic / sum(total_plastic, na.rm = TRUE)
-  ) |>
-  gt() |>
-  tab_header(
-    title = "Plastic Waste by GDP Categories"
-  ) |>
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_title()
-  ) |>
-  cols_label(
-    gdp_quantile = "GDP Category",
-    total_plastic = "Total Plastic",
-    avg_gdp_per_capita_nominal = "GDP Per Capita (Average)",
-    share_of_total = "Share of Total"
-  ) |>
-  tab_caption("Table 4: Plastic Waste Attributed to Different GDP Levels") |>
-  tab_spanner(
-    label = "GDP Statistics",
-    columns = c(avg_gdp_per_capita_nominal, share_of_total)) |>
-  tab_footnote(
-    footnote = "Expressed in billions of USD",
-    locations = cells_column_labels(
-      columns = avg_gdp_per_capita_nominal
-    )) |>
-  fmt_currency(columns = avg_gdp_per_capita_nominal,
-             decimals = 2) |>
-  fmt_number(columns = total_plastic,
-             decimals = 0) |>
-  fmt_percent(columns = share_of_total,
-              decimals = 3) |>
-  tab_footnote(
-    footnote = "GDP categories were determined by obtaining the 33rd and 67th percentiles, then designating 'Low GDP' as what lay from the bottom to the 33rd percentile, 'Mid GDP' as what lay from the 33rd to the 67th percentile, and 'High GDP' as what lay from the 67th percentile to the top.",
-    locations = cells_column_labels(
-      columns = total_plastic
-    ))
 ```
 
+```{r}
+#| content: card-sidebar
+#| width: 163
+
+checkboxGroupInput(
+  "gdp_category_filter",
+  label =  "GDP Categories:",
+  choices = c("Low GDP", "Mid GDP", "High GDP"),
+  selected = c("Low GDP", "Mid GDP", "High GDP")
+)
+```
+
+```{r}
+gt_output("gdp_table")
+```
+
+```{r}
+#| context: server
+
+output$gdp_table <- render_gt({
+  
+  tibble(gdp_quantile = c("Low GDP", "Mid GDP", "High GDP")) |>
+    filter(gdp_quantile %in% input$gdp_category_filter) |>
+    mutate(
+      total_plastic = map_int(gdp_quantile, quantile_plastic),
+      avg_gdp_per_capita_nominal = map_dbl(gdp_quantile, quantile_gdp),
+      share_of_total  = total_plastic / sum(total_plastic, na.rm = TRUE)
+    ) |>
+    gt() |>
+    tab_header(
+      title = "Plastic Waste by GDP Categories"
+    ) |>
+    tab_style(
+      style = cell_text(weight = "bold"),
+      locations = cells_title()
+    ) |>
+    cols_label(
+      gdp_quantile = "GDP Category",
+      total_plastic = "Total Plastic",
+      avg_gdp_per_capita_nominal = "GDP Per Capita (Average)",
+      share_of_total = "Share of Total"
+    ) |>
+    tab_caption("Table 4: Plastic Waste Attributed to Different GDP Levels") |>
+    tab_spanner(
+      label = "GDP Statistics",
+      columns = c(avg_gdp_per_capita_nominal, share_of_total)) |>
+    tab_footnote(
+      footnote = "Expressed in billions of USD",
+      locations = cells_column_labels(
+        columns = avg_gdp_per_capita_nominal
+      )) |>
+    fmt_currency(columns = avg_gdp_per_capita_nominal,
+               decimals = 2) |>
+    fmt_number(columns = total_plastic,
+               decimals = 0) |>
+    fmt_percent(columns = share_of_total,
+                decimals = 3) |>
+    tab_footnote(
+      footnote = "GDP categories were determined by obtaining the 33rd and 67th percentiles, then designating 'Low GDP' as what lay from the bottom to the 33rd percentile, 'Mid GDP' as what lay from the 33rd to the 67th percentile, and 'High GDP' as what lay from the 67th percentile to the top.",
+      locations = cells_column_labels(
+        columns = total_plastic
+      ))
+})
+```
 Low GDP countries appear to carry greater levels of plastic waste than Mid and High GDP countries. It must be kept in mind that this could be inflated by Nigeria and the Philippines being considered Low GDP.
-:::
 
 ### Regression model results
 
