@@ -234,8 +234,8 @@ output$table <- render_gt(
                decimals = 0)
 )
 ```
-Many of the countries with high plastic waste appear to have lower average GDP per capita, with the United States and Switzerland breaking with the trend.
 
+Many of the countries with high plastic waste appear to have lower average GDP per capita, with the United States and Switzerland breaking with the trend.
 
 ### Plastic waste by GDP category
 
@@ -344,12 +344,12 @@ output$gdp_table <- render_gt({
       ))
 })
 ```
+
 Low GDP countries appear to carry greater levels of plastic waste than Mid and High GDP countries. It must be kept in mind that this could be inflated by Nigeria and the Philippines being considered Low GDP.
 
 ### Regression model results
 
 ::: card
-
 ```{r}
 #| context: setup
 
@@ -567,6 +567,7 @@ output$scatter_plot <- renderPlot({
     )
 })
 ```
+
 There does not appear to be a relationship present between average GDP per capita, and the amount of plastic waste. There are two major outliers in Nigeria and the Philippines.
 :::
 
