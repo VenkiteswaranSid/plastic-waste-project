@@ -234,6 +234,7 @@ output$table <- render_gt(
                decimals = 0)
 )
 ```
+Many of the countries with high plastic waste appear to have lower average GDP per capita, with the United States and Switzerland breaking with the trend.
 
 
 ### Plastic waste by GDP category
@@ -327,7 +328,10 @@ Low GDP countries appear to carry greater levels of plastic waste than Mid and H
 ### Regression model results
 
 ::: card
+
 ```{r}
+#| context: setup
+
 full_summary <- plastics_top |>
   distinct(country) |>
   filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
@@ -342,7 +346,9 @@ full_summary <- plastics_top |>
     avg_gdp_per_capita_nominal < 20000 ~ "Middle GDP",
     avg_gdp_per_capita_nominal >= 20000 ~ "High GDP"
   )) 
+```
 
+```{r}
 model_gdp <- lm(plastic_total ~ avg_gdp_per_capita_nominal, data = full_summary)
 
 tidy(model_gdp) |>
@@ -476,56 +482,71 @@ Nigeria and the Philippines have high levels of waste, while the rest of the wor
 
 ::: card
 ```{r}
+#| context: setup
+
+plot_data <- full_summary |>
+  filter(country != "China")
+```
+
+```{r}
+#| content: card-toolbar
+
+sliderInput(
+  "plastic_range",
+  "Filter by Total Plastic Waste:",
+  min = floor(min(plot_data$plastic_total, na.rm = TRUE)),
+  max = ceiling(max(plot_data$plastic_total, na.rm = TRUE)),
+  value = range(plot_data$plastic_total, na.rm = TRUE),
+  step = 1000
+)
+plotOutput("scatter_plot", height = 475)
+```
+
+```{r}
+#| context: server
 #| fig-alt: "A scatterplot of total plastic waste vs nominal GDP colored by income group. Lower middle income countries like Nigeria and the Philippines produce the most plastic waste despite low GDPs, while high income countries show moderate waste levels despite higher GDPs, suggesting no clear positive relationship between GDP and plastic waste."
 #| warning: false
 
-full_summary <- plastics_top |>
-  distinct(country) |>
-  filter(!country %in% c("EMPTY", "Taiwan_ Republic of China (ROC)", "Nigeria")) |>
-  mutate(
-    result = map(country, gdp_plastics),
-    country = recode(country, "NIGERIA" = "Nigeria", "ECUADOR" = "Ecuador")
-  ) |>
-  unnest(result) |>
-  mutate(gdp_category = case_when(
-    is.na(avg_gdp_per_capita_nominal) ~ "Unknown",
-    avg_gdp_per_capita_nominal < 5000  ~ "Low GDP",
-    avg_gdp_per_capita_nominal < 20000 ~ "Middle GDP",
-    avg_gdp_per_capita_nominal >= 20000 ~ "High GDP"
-  )) 
-
-full_summary |>
-  filter(country != "China") |>
-  ggplot(aes(x = avg_gdp_per_capita_nominal, y = plastic_total, color = gdp_category)) +
-    geom_point(size = 1.5) +
-    geom_text_repel(
-      aes(label = country),
-      size = 2
-  ) +
-  labs(
-    title = "Total Plastic Waste vs GDP by Country",
-    subtitle = "Colored by GDP Category",
-    x = "Avg GDP Per Capita(Nominal, USD)",
-    y = "Total Plastic Waste",
-    color = "GDP Category"
-  ) +
-  scale_color_manual(
-  values = c(
-    "Low GDP" = "#CD0200",
-    "Middle GDP" = "#3CB521",
-    "High GDP" = "#446E9B"
-  ),
-  breaks = c("High GDP", "Middle GDP", "Low GDP")
-  ) +
-  theme_bw() +
-  theme(
-    plot.title = element_text(face = "bold", size = 16),
-    plot.subtitle = element_text(size = 12),
-    plot.margin = margin(15, 15, 15, 15)
-  )
+filtered_data <- reactive({
+  plot_data |>
+    filter(
+      plastic_total >= input$plastic_range[1],
+      plastic_total <= input$plastic_range[2]
+    )
+})
+  
+output$scatter_plot <- renderPlot({
+  filtered_data() |>
+    ggplot(aes(x = avg_gdp_per_capita_nominal, y = plastic_total, color = gdp_category)) +
+      geom_point(size = 1.5) +
+      geom_text_repel(
+        aes(label = country),
+        size = 3
+    ) +
+    labs(
+      title = "Total Plastic Waste vs GDP by Country",
+      subtitle = "Colored by GDP Category",
+      x = "Avg GDP Per Capita(Nominal, USD)",
+      y = "Total Plastic Waste",
+      color = "GDP Category"
+    ) +
+    scale_color_manual(
+    values = c(
+      "Low GDP" = "#CD0200",
+      "Middle GDP" = "#3CB521",
+      "High GDP" = "#446E9B"
+    ),
+    breaks = c("High GDP", "Middle GDP", "Low GDP")
+    ) +
+    theme_bw() +
+    theme(
+      plot.title = element_text(face = "bold", size = 16),
+      plot.subtitle = element_text(size = 12),
+      plot.margin = margin(15, 15, 15, 15)
+    )
+})
 ```
-
-The scatter plot shows no clear relationship between average GDP per capita and the amount of plastic waste. There are two major outliers in Nigeria and the Philippines, but the rest of the world seems to have similar levels of waste at different levels of average GDP per capita.
+There does not appear to be a relationship present between average GDP per capita, and the amount of plastic waste. There are two major outliers in Nigeria and the Philippines.
 :::
 
 # Country Specific Analysis
