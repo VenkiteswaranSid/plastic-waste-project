@@ -575,7 +575,7 @@ There does not appear to be a relationship present between average GDP per capit
 
 ##  {width="30%"}
 
-We decided to focus on the Philippines because we noticed from the scatter plot that it had a highly unusual amount of plastic waste given their GDP per capita. We are incorporating a data set that contains data on the amount of plastic pollution entering the ocean by country. Through this data set, we can see that the Philippines is the world's largest contributor of plastic pollution entering the ocean.
+The decision to focus specifically on the Philippines originated from the highly unusual amount of plastic waste given the GDP per capita for the company. To further explore this, a data set that contains data on the amount of plastic pollution entering the ocean by country was incorporated. From this data set, it is clear that the Philippines is the world's largest contributor of plastic pollution entering the ocean by a wide margin.
 
 ##  {.tabset width="70%"}
 
@@ -614,3 +614,5 @@ plot_ly(ocean,
 
 The Philippines has an incredibly large amount of its plastic waste entering the ocean through rivers compared to the rest of the world, indicating that its plastic pollution problem has a heavy impact on marine ecosystems surrounding the country.
 :::
+
+# 
