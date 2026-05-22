@@ -575,7 +575,7 @@ There does not appear to be a relationship present between average GDP per capit
 
 ##  {width="30%"}
 
-The decision to focus specifically on the Philippines originated from the highly unusual amount of plastic waste given the GDP per capita for the company. To further explore this, a data set that contains data on the amount of plastic pollution entering the ocean by country was incorporated. From this data set, it is clear that the Philippines is the world's largest contributor of plastic pollution entering the ocean by a wide margin.
+The decision to focus specifically on the Philippines originated from the highly unusual amount of plastic waste given the GDP per capita for the company. Compared to other countries around the world, the Philippines is a more island based country, lacking the large surface area of some of the other countries that have large amounts of plastic pollution in the world. Because of the unique geographic characteristics of the Philippines, being an island based country, it seemed like a good idea to compare how much of its plastic waste pollutes marine environments in comparison to other countries. 
 
 ##  {.tabset width="70%"}
 
@@ -615,4 +615,29 @@ plot_ly(ocean,
 The Philippines has an incredibly large amount of its plastic waste entering the ocean through rivers compared to the rest of the world, indicating that its plastic pollution problem has a heavy impact on marine ecosystems surrounding the country.
 :::
 
-# 
+# About
+
+## 
+::: {.card title="Plastic Data"}
+The plastic data comes from a publication on Github, which sourced data from the organization, Break Free From Plastic. Break Free From Plastic is an organization that produces audits on the efforts to clean up plastic pollution within different countries throughout the world. The data set on Github contains data from the 2019 and 2020 audits. With data on different countries around the world in regards to plastic waste, this appeared to be a data set that was relevant to the questions that motivated this exploration.
+
+The data was collected with each count of a specific type of plastic, originating from a combination of a specific country and company. This corresponded to a single observational unit in the data. Counts of these plastics were tallied up to create an aggregate of over 50 countries in the data set. The plastics specifically were classified by recycling codes.
+
+From Break Free From Plastic's website, the data that was present in the Github publication was collected through tallies of clean up efforts across these different countries. This data was gathered to get information on the sources of plastic pollution, in order to demand a reduction in such waste across the globe, as part of Break Free From Plastic's mission.
+:::
+
+## 
+::: {.card title="GDP Data"}
+The GDP data set was published by the website API Ninjas. Per API Ninjas' website, the data that is provided on their website comes from various different sources, but API Ninjas does not offer much transparency in who specifically gathered the data that is available in the GDP API endpoint. For the GDP endpoint, much of the data goes back to 1980, with the most recent data going up till 2026.
+
+Data was collected with each country being treated as an observational unit. This data follows the nature of a time series, with data being collected back almost 40 to 50 years in the past for each observational unit.
+
+API Ninjas does not offer much transparency in their methods of data collection, only that they gather what is already collected from different sources and compile it together into their API endpoints. Additionally, from the website, there was no information provided on why this data was gathered, only that the data was collected with the aim of comparing data from one country with others.
+:::
+
+## 
+::: {.card title="Ocean Pollution Data"}
+The ocean plastics data comes from Our World in Data, which sourced data from research on plastic waste entering the ocean via rivers. Our World in Data is an online publication that presents data and research on global issues, including environmental topics such as plastic pollution. The data set contains country level estimates of plastic pollution entering the ocean for the year 2019. With data on plastic ocean pollution across countries around the world, this appeared to be a data set that was relevant to understanding the Philippines as a country-specific case study.
+
+Data was collected with each observation representing a single country's estimated total plastic pollution entering the ocean via rivers. Estimates were produced using environmental modeling based on plastic waste generation and river flow data. The data covers countries across the globe, allowing for cross-country comparison of ocean plastic contributions.
+:::
